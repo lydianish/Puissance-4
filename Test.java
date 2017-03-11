@@ -3,7 +3,9 @@ public class Test{
 	public static void main(String[] args){
 	
 		Plateau p = new Plateau();
-		int j = -1;
+
+        Fenetre f = new Fenetre(p);
+		/*int j = -1;
         boolean fini = false;
         while (!fini && j==-1){
             j=p.deuxJoueurs();
@@ -15,7 +17,7 @@ public class Test{
             System.out.println("le joueur " + j + " a gagne!");
         else
             System.out.println("Personne n'a gagne!");
-
+*/
 
 	}
 

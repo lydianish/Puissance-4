@@ -1,25 +1,38 @@
 import java.io.IOException;
 import java.util.IllegalFormatCodePointException;
+import java.awt.*;
 import java.util.Scanner;
 
+/**Classe decrivant un plateau de jeu -
+ * par convention, jaune = 1, rouge = 2 et case vide = 0*/
 public class Plateau{
 
 	private int[][] grille;
 	private int joueur;
+	private final int nbl = 6;
+	private final int nbc = 7;
 	static final int jaune = 1;
 	static final int rouge = 2;
 	
-	
+	/**Constructeur du plateau
+     * - au depart la grille est vide et le premier joueur est le jaune*/
 	public Plateau(){
-		grille = new int[6][7];
+		grille = new int[nbl][nbc];
 		joueur = jaune;
 	}
-	
+
+	/**Methode pour reinitialiser le plateau de jeu*/
+	public void effacer(){
+		grille = new int[nbl][nbc];
+		joueur = jaune;
+	}
+
+	/**Mehode pour afficher le plateau de jeu dans la console*/
 	public void imprime(){
 		
 		System.out.println();
-		for (int i=0; i<6; i++){
-			for (int j=0; j<7; j++){
+		for (int i=0; i<nbl; i++){
+			for (int j=0; j<nbc; j++){
 				if (grille[i][j]==jaune)
 					System.out.print('j');
 				else {
@@ -34,31 +47,93 @@ public class Plateau{
 		System.out.println();
 	
 	}
-	
-	public void joue(int j) throws IllegalArgumentException{
-		if (j<0 || j>6)
-		    throw new IllegalArgumentException("Le numero de colonne doit etre compris entre 0 et 6 !");
+
+
+    /**Methode pour dessiner le plateau de jeu dans un panneau
+     * (dessine les cercles rouges, jaunes et blancs
+     * @param g le parametre de type Graphics qui permet dessiner
+     * @param largeur la largeur du panneau en nombre de pixels
+     * @param hauteur la hauteur du panneau en nombre de pixels*/
+	public void affiche(Graphics g, int largeur,int hauteur){
+		int height = hauteur/nbl;
+		int width = largeur/nbc;
+
+		for (int i=0; i<nbl; i++){
+			for (int j=0; j<nbc; j++){
+				if (grille[i][j]==jaune){
+					g.setColor(Color.yellow);
+				}
+				else {
+					if (grille[i][j]==rouge){
+						g.setColor(Color.red);
+					}
+					else
+					{
+						g.setColor(Color.white);
+					}
+				}
+				g.fillOval(j*width+width/10,i*height+height/10,4*width/5,4*height/5);
+			}
+		}
+
+	}
+
+	/**Methode qui permet de jouer un tour
+     * (utilisee plutot dans la version texte)
+     * @param j la colonne a jouer
+     * @throws ExceptionColonneInvalide lorsque j n'est pas un indice valide de une colonne
+     * @throws ExceptionColonnePleine lorsque la colonne j est deja remplie*/
+	public void joue(int j) throws Exception{
+		if (j<0 || j>nbc-1)
+		    throw new ExceptionColonneInvalide(nbc);
 
 		int i = 0;
 
-		while (i<6 && grille[i][j]==0)
+		while (i<nbl && grille[i][j]==0)
 			i++;
-		
+
 		if (i>0)//colonne non pleine
 			grille[i-1][j] = joueur;
-		
+		else
+		    throw new ExceptionColonnePleine(j);
 		suivant();
-	
+
 	}
 
+	/**Methode qui permet de jouer un pas d'un tour (d'ou le nom "pas a pas")
+     * C'est a dire de placer un pion dans une case et de l'effacer dans la case du dessus
+     * (utilisee plutot dans la version graphique pour simuler la chute du pion)
+     * @param i l'indice de ligne de la case : precondition i est valide
+     * @param j l'indice de colonne de la case : precondition j est valide et non pleine
+     * @return vrai ssi le pion peut toujours descendre dans la colonne j*/
+	public boolean jouePaP(int i, int j){
+
+        if (i<nbl && grille[i][j]==0){
+            grille[i][j] = joueur;
+            if (i-1>=0)//on efface le precedent
+                grille[i-1][j] = 0;
+        }
+
+        if (i+1<nbl && grille[i+1][j]==0)//on peut toujours descendre
+            return true;
+
+        suivant();//sinon on ne peut plus descendre, il faut changer de joueur
+        return false;
+
+    }
+
+    /**Methode qui permet de savoir si le plateau de jeu est deja plein
+     * @return true ssi le plateau est plein*/
 	public boolean estPlein(){
         //test si le jeu est fini (grille pleine)
         int j = 0;
-        while (j<7 && grille[0][j]!=0)
+        while (j<nbc && grille[0][j]!=0)
             j++;
-        return j==7;
+        return j==nbc;
     }
-	
+
+    /**Methode qui permet de savoir si la partie est gagnee
+     * @return i si le joueur i a gagne, -1 si personne n'a gagne*/
 	public int gagne(){
 
         boolean gagne = false;
@@ -73,7 +148,7 @@ public class Plateau{
 		
 		//recherche sur les colonnes partant de la gauche
         int j = 0;
-		while (!gagne && j<7){
+		while (!gagne && j<nbc){
 			jr = gagneColonne(j);
 			gagne = (jr!=-1);
 			j++;
@@ -81,7 +156,7 @@ public class Plateau{
 
 		//recherche sur les diagonales suivant les 1eres diagonales
 		i = 3;
-		while (!gagne && i<6){
+		while (!gagne && i<nbl){
 			jr = gagneDiagonaleDroite(i,0);
 			gagne = (jr!=-1);
 			i++;
@@ -95,8 +170,8 @@ public class Plateau{
 
 		//recherche sur les diagonales suivant les 2emes diagonales
 		i = 3;
-		while (!gagne && i<6){
-			jr = gagneDiagonaleGauche(i,6);
+		while (!gagne && i<nbl){
+			jr = gagneDiagonaleGauche(i,nbl);
 			gagne = (jr!=-1);
 			i++;
 		}
@@ -110,12 +185,48 @@ public class Plateau{
 
 	}
 
+	/**Methode permettant de lire les entrees dans la version texte a 2 joueurs,
+     * de jouer et d'imprimer le plateau dans la console
+     * @return la meme valeur de retour que 'gagne'*/
 	public int deuxJoueurs(){
         Scanner lecture = new Scanner(System.in);
         System.out.println("Joueur "+joueur+", saisissez une colonne a jouer");
-        joue(lecture.nextInt());
+        try {
+            joue(lecture.nextInt());
+        }
+        catch (Exception e){
+           if(e instanceof ExceptionColonneInvalide)
+            System.out.println("L'indice de la colonne doit etre comprise entre 0 et "+((ExceptionColonneInvalide)e).getIndiceMax());
+           else{
+               if(e instanceof ExceptionColonnePleine)
+                   System.out.println("La colonne "+((ExceptionColonnePleine) e).getCol()+" est deja pleine");
+           }
+        }
         imprime();
         return gagne();
+    }
+
+    public int getHauteur(){return nbl;}
+
+    public int getLargeur(){return nbc;}
+
+    public int getJoueur() {return joueur;}
+
+    /**Methode qui revoie le nom (couleur) du joueur courant*/
+    public String getCouleurJoueur() {
+        if (joueur==jaune)
+            return "JAUNE";
+        return "ROUGE";
+    }
+
+    /**Methode qui renvoie vrai ssi j n'est pas un indice valide de colonne*/
+    public boolean colonneInvalide(int j){
+        return (j<0 || j>nbc-1);
+    }
+
+    /**Methode qui renvoie vrai ssi la colonne j est pleine*/
+    public boolean colonnePleine(int j){
+        return grille[0][j]!=0;
     }
 
 	/*renvoie le joueur qui a gagne sur la ligne i, -1 s'il n y en a pas*/
