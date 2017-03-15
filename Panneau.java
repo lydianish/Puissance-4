@@ -31,16 +31,22 @@ public class Panneau extends JPanel implements MouseListener{
 	public void avance(){
         pret = false;
         while (descentePossible){
-            descentePossible=jeu.jouePaP(lig,col);
             setMessage();
+            descentePossible=jeu.jouePaP(lig,col);
             lig++;
             try {
                 aff.sleep(attente);
             }
-            catch (InterruptedException e){};
+            catch (InterruptedException e){}
         }
-        pret = true;
-
+        jeu.setNiveauCol(col,jeu.getNiveauCol(col)+1);
+        gagne = jeu.gagne();
+        if (gagne==-1)
+            pret = true;
+        else {
+            jeu.joueurSuivant();
+            setMessage("Félicitations ! " + jeu.getCouleurJoueur() + " a gagné !");
+        }
 	}
 
 	/**Methode qui permet l'affichage du panneau*/
@@ -79,6 +85,7 @@ public class Panneau extends JPanel implements MouseListener{
                     lig = 0;
                     col = j;
                     descentePossible = true;
+                    //avance();
                 }
             }
         }
@@ -97,7 +104,7 @@ public class Panneau extends JPanel implements MouseListener{
     private JLabel texte;
 	private boolean descentePossible = false;
 	private boolean pret = true;
-	private int attente = 250;
+	private int attente = 250, gagne = -1;
 
     public int getAttente() {return attente;}
 
@@ -112,6 +119,7 @@ public class Panneau extends JPanel implements MouseListener{
     private void setMessage(String message){
         this.message = message;
     }
+
     private Thread aff = new Thread(){
         @Override
         public void run() {
@@ -129,6 +137,8 @@ public class Panneau extends JPanel implements MouseListener{
                     avance();
         }
     };
+
+
 
 
 }

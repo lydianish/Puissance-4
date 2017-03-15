@@ -45,7 +45,7 @@ public class Fenetre extends JFrame {
 		bottom.add(newgame);
 		quit = new JButton("Quitter");
         bottom.add(quit);
- 		slider = new JSlider(JSlider.HORIZONTAL,10,400,200);
+ 		slider = new JSlider(JSlider.HORIZONTAL,10,100,50);
         bottom.add(slider);
 
  		  contenu.add(top);
