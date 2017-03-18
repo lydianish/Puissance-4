@@ -210,9 +210,9 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (j1 <= nbc-1) && (grille[i][j1] != 0)){
                 rep = rep && (grille[i][j1] == grille[i][j]);
-                addVecteurGagnant(i,j1);
-                j1++;
                 if(rep){
+                    addVecteurGagnant(i,j1);
+                    j1++;
                     nb++;
                 }else{
                     return nb;
@@ -232,9 +232,9 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (j1 >= 0) && (grille[i][j1] != 0)){
                 rep = rep && (grille[i][j1] == grille[i][j]);
-                addVecteurGagnant(i,j1);
-                j1--;
                 if(rep){
+                    addVecteurGagnant(i,j1);
+                    j1--;
                     nb++;
                 }else{
                     return nb;
@@ -255,9 +255,9 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (i1 <= nbl-1) && (grille[i1][j] != 0)){
                 rep = rep && (grille[i1][j] == grille[i][j]);
-                addVecteurGagnant(i1,j);
-                i1++;
                 if(rep){
+                    addVecteurGagnant(i1,j);
+                    i1++;
                     nb++;
                 }else{
                     return nb;
@@ -277,9 +277,9 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (i1 >= 0) && (grille[i1][j] != 0)){
                 rep = rep && (grille[i1][j] == grille[i][j]);
-                addVecteurGagnant(i1,j);
-                i1--;
                 if(rep){
+                    addVecteurGagnant(i1,j);
+                    i1--;
                     nb++;
                 }else{
                     return nb;
@@ -302,10 +302,10 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (i1 <= nbl-1) && (j1 <= nbc-1) && (grille[i1][j1] != 0)){
                 rep = rep && (grille[i1][j1] == grille[i][j]);
-                addVecteurGagnant(i1,j1);
-                i1++;
-                j1++;
                 if(rep){
+                    addVecteurGagnant(i1,j1);
+                    i1++;
+                    j1++;
                     nb++;
                 }else{
                     return nb;
@@ -326,10 +326,10 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (i1 >= 0) && (j1 >= 0) && (grille[i1][j1] != 0)){
                 rep = rep && (grille[i1][j1] == grille[i][j]);
-                addVecteurGagnant(i1,j1);
-                i1--;
-                j1--;
                 if(rep){
+                    addVecteurGagnant(i1,j1);
+                    i1--;
+                    j1--;
                     nb++;
                 }else{
                     return nb;
@@ -350,10 +350,10 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (i1 >= 0) && (j1 <= nbc-1) && (grille[i1][j1] != 0)){
                 rep = rep && (grille[i1][j1] == grille[i][j]);
-                addVecteurGagnant(i1,j1);
-                i1--;
-                j1++;
                 if(rep){
+                    addVecteurGagnant(i1,j1);
+                    i1--;
+                    j1++;
                     nb++;
                 }else{
                     return nb;
@@ -374,10 +374,10 @@ public class Plateau
             boolean rep = true;
             while(nb<=4 && (i1 <= nbl-1) && (j1 >= 0) && (grille[i1][j1] != 0)){
                 rep = rep && (grille[i1][j1] == grille[i][j]);
-                addVecteurGagnant(i1,j1);
-                i1++;
-                j1--;
                 if(rep){
+                    addVecteurGagnant(i1,j1);
+                    i1++;
+                    j1--;
                     nb++;
                 }else{
                     return nb;
