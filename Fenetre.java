@@ -36,12 +36,15 @@ public class Fenetre extends JFrame {
  		  
         bottom = new JPanel();
         bottom.setPreferredSize( new Dimension(largeurP, hauteurM ) );
+        choix = myComboBox();
+        bottom.add(choix);
         slider = mySlider();
         bottom.add(slider);
         newgame = new JButton("Nouvelle Partie");
 		bottom.add(newgame);
 		quit = new JButton("Quitter");
         bottom.add(quit);
+
 
         contenu.add(top);
         contenu.add(middle);
@@ -72,16 +75,23 @@ public class Fenetre extends JFrame {
             }
         });
 
+        choix.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                middle.setMode(((JComboBox)e.getSource()).getSelectedIndex());
+            }
+        });
+
     }
     
     
     private Container contenu;
-	 private JPanel top;
-	 private Panneau middle;
-	 private JPanel bottom;
-	 private Plateau jeu;
+    private JPanel top;
+    private Panneau middle;
+    private JPanel bottom;
+    private Plateau jeu;
     
-    private int pixels = 100;
+    //private int pixels = 100;
 	private int largeurP = 700;// or Math.min(jeu.getLargeur()*pixels,Toolkit.getDefaultToolkit().getScreenSize().width);;
     private int hauteurP = 600;
 	private int hauteurM = 50;
@@ -90,6 +100,7 @@ public class Fenetre extends JFrame {
     private JButton quit;
     private JLabel texte;
     private JSlider slider;
+    private JComboBox choix;
 
 	private JSlider mySlider(){
 		JSlider s = new JSlider(JSlider.HORIZONTAL,10,100,100);
@@ -101,5 +112,14 @@ public class Fenetre extends JFrame {
 		s.setPaintLabels(true);
 		return s;
 	}
+
+    private JComboBox myComboBox(){
+        JComboBox c = new JComboBox();
+        c.addItem("Deux Joeurs");
+        c.addItem("Un Joueur - Facile");
+        c.addItem("Un Joueur - Moyen");
+        c.addItem("Un Joueur - Difficile");
+        return c;
+    }
 
 }

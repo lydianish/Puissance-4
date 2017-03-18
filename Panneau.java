@@ -14,6 +14,7 @@ public class Panneau extends JPanel implements MouseListener{
     private JLabel texte;
     private boolean pret = true; //pret=true => qq'un peut joeur, pret = false => qq'un est en train de jouer
     private int gagne = -1;
+    private int mode = 0; //mode de jeu : 0 = deux joueurs, 1 = un joueur facile, 2 = un joueur moyen, 3 =  un joueur difficile
 
     /**Constructeur du panneau
      * @param jeu le plateau
@@ -47,7 +48,7 @@ public class Panneau extends JPanel implements MouseListener{
                 setMessage();
             }
             else {
-                setMessage("Félicitations ! " + jeu.getCouleurGagnant() + " a gagné !");
+                setMessageVictoire();
             }
         }
 	}
@@ -86,7 +87,15 @@ public class Panneau extends JPanel implements MouseListener{
                 setMessage("La colonne "+j+" est deja pleine !");
             else{
                 if (pret) {
-                    col = j;
+                    if (mode!=0 && jeu.getJoueurCourant()==Plateau.joueur2) {
+                        switch (mode){
+                            case 1 : col = jeu.joueOrdiFacile(); break;
+                            case 2 : col = jeu.joueOrdiMoyen(); break;
+                            case 3 : col = jeu.joueOrdiDifficile(); break;
+                        }
+                    }
+                    else
+                        col = j;
                 }
             }
         }
@@ -98,16 +107,34 @@ public class Panneau extends JPanel implements MouseListener{
 
     public void mouseExited(MouseEvent e) {}
 
-
-
-
+    /**Methode pour saisir le mode du jeu
+     * @param m un entier : 0 = deux joueurs, 1 = un joueur facile, 2 = un joueur moyen, 3 =  un joueur difficile*/
+    public void setMode(int m){mode = m;}
 
     private void setMessage(){
-        this.message = "Au "+ jeu.getCouleurJoueur()+" de jouer... ";
+        if (mode==0)
+            this.message = "Au "+ jeu.getCouleurJoueur()+" de jouer... ";
+        else{
+            if (jeu.getJoueurCourant()==Plateau.joueur1)
+                this.message = "A vous de jouer... ";
+            else
+                this.message = "A l'ordinateur de jouer... Veuillez cliquer. ";
+        }
     }
 
     private void setMessage(String message){
         this.message = message;
+    }
+
+    private void setMessageVictoire(){
+        if (mode==0)
+            setMessage("Félicitations ! " + jeu.getCouleurGagnant() + " a gagné !");
+        else{
+            if (jeu.getJoueurGagnant()==Plateau.joueur1)
+                this.message = "Félicitations ! Vous avez gagné !";
+            else
+                this.message = "Désolé ! Vous avez perdu !";
+        }
     }
 
     private Thread aff = new Thread(){

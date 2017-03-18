@@ -4,8 +4,8 @@ import java.util.*;
 public class Plateau
 {
 
-	private static final int joueur1 = 1;			//joueur 1
-	private static final int joueur2 = 2;			//joueur 2
+	public static final int joueur1 = 1;			//joueur 1
+	public static final int joueur2 = 2;			//joueur 2
     private String couleur1 = "JAUNE" ;
     private String couleur2 = "ROUGE" ;
     private int joueurCourant;
@@ -28,7 +28,14 @@ public class Plateau
 	}
 
 	//ACCESSEURS
-	/**Methode qui renvoie le numero de l'autre joueur (celui qui n'est pas le joueur courant*/
+
+    /**Methode qui renvoie le numero du joueur courant*/
+    public int getJoueurCourant(){return joueurCourant;}
+
+    /**Methode qui renvoie le numero du joueur qui a gagne*/
+    public int getJoueurGagnant(){return joueurGagnant;}
+
+    /**Methode qui renvoie le numero de l'autre joueur (celui qui n'est pas le joueur courant*/
 	public int autreJoueur(){
         return joueur1 + joueur2 - joueurCourant;
 	}
@@ -168,6 +175,25 @@ public class Plateau
         niveauCol[j]++;
     }
 
+
+    /**Methode qui permet de jouer contre l'ordinateur, niveau facile (l'ordi joue au hasard)
+     * @return la colonne a jouer*/
+    public int joueOrdiFacile(){
+        return (int)(Math.random() * (nbc));//entier au hasard entre 0 et nbc-1
+    }
+
+    /**Methode qui permet de jouer contre l'ordinateur, niveau moyen
+     * @return la colonne a jouer*/
+    public int joueOrdiMoyen(){
+        //A REFAIRE!!!
+        return (int)(Math.random() * (nbc));//entier au hasard entre 0 et nbc-1
+    }
+    /**Methode qui permet de jouer contre l'ordinateur, niveau difficile
+     * @return la colonne a jouer*/
+    public int joueOrdiDifficile(){
+        //A REFAIRE!!!
+        return (int)(Math.random() * (nbc));//entier au hasard entre 0 et nbc-1
+    }
 
     /*---METHODES PRIVEES---*/
 
@@ -416,79 +442,4 @@ public class Plateau
         return trouve;
     }
 
-    public String afficheVG(){
-        String s = "";
-        //for (int i = 0; i==1;i++){
-            for (int j = 0; j<4; j++){
-                s += vecteurGagnant[0][j] + "," +vecteurGagnant[1][j]+" ";
-            }
-       // }
-        return s;
-    }
-
-    //modifie le plateau pour que le joueur courant ait joué dans le plateau à la colonne i
-/*	public int joue(int i) throws ColonnePleineException{
-		if(!estColPleine(i)){
-			niveauCol[i]++;
-			grille[nbl-1 - (getNiveauCol(i)-1)][i] = joueurCourant;
-			ligneCourante = nbc-1 - getNiveauCol(i);
-			colonneCourante = i;
-			System.out.println("ligne et colonne courantes (" + ligneCourante + " " + colonneCourante + ")");
-			joueurSuivant();
-		}else{
-			throw new ColonnePleineException("La colonne : " + i + " est déjà pleine");
-		}
-		return getNiveauCol(i);
-	}
-*/
-    //fait avancer le jeu
-	/*public synchronized void avance(int i) throws InterruptedException {
-		if(!pret){
-			try{
-				joue(i);
-			}catch(ColonnePleineException e){
-				System.out.println(e.getMessage());
-			}
-			pret = true;
-			notifyAll();
-		}else{
-			wait();
-		}
-
-	}
-*/
-    //afficle le jeu
-/*	public synchronized void imprime() throws InterruptedException{
-		if(pret){
-			String g = "-- ";
-			for(int k= 0; k < getColonne(); k++){
-				System.out.print(g);
-			}
-			System.out.println();
-			for(int i = 0; i < getLigne(); i++){
-				for(int j= 0; j < getColonne(); j++){
-					if(grille[i][j] == joueur1){
-						System.out.print("" + joueur1);
-					}else{
-						if(grille[i][j] == joueur2){
-							System.out.print("" + joueur2);
-						}else{
-							System.out.print(" ");
-						}
-					}
-					System.out.print(" |");
-				}
-				System.out.print("\n");
-				for(int h = 0; h < getColonne(); h++){
-					System.out.print(g);
-				}
-				System.out.print("\n");
-			}
-			pret = false;
-			notifyAll();
-		}else{
-			wait();
-		}
-	}
-*/
 }
