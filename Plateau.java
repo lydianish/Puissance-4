@@ -17,7 +17,7 @@ public class Plateau
 	private int ligneCourante, colonneCourante;	//indice de la ligne et de la colonne courante
     private int[][] vecteurGagnant; //la 1ere est le vecteur des 4 i et le 2eme le vecteur de 4 j qui ont permis de ganger
     private int indiceVecteurGagant = -1;//l'indice de la derniere case ajoutee dans le vecteur gagnant
-    private int attente = 100; //nombre de millisecondes entre chaque etape de la chute du pion
+    private int attente = 10; //nombre de millisecondes entre chaque etape de la chute du pion
 
     //CONSTRUCTEUR
 	public Plateau(){
@@ -99,7 +99,8 @@ public class Plateau
         for (int i=0; i<nbl; i++){
             for (int j=0; j<nbc; j++){
                 if (dansVecteurGagnant(i,j)){
-                    g.setColor(Color.blue.darker());
+                    //CHOIX DE LA COULEUR - A REVOIR
+                    g.setColor(Color.getHSBColor(0.5f,0.265f,0.933f));
                     g.fillRect(j*width,i*height,width,height);
                 }
                 if (grille[i][j]==joueur1){
@@ -111,7 +112,7 @@ public class Plateau
                     }
                     else
                     {
-                        g.setColor(Color.white);
+                        g.setColor(Color.cyan);
                     }
                 }
                 g.fillOval(j*width+width/10,i*height+height/10,4*width/5,4*height/5);

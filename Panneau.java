@@ -8,7 +8,7 @@ import java.awt.event.MouseListener;
 public class Panneau extends JPanel implements MouseListener{
 
     private Plateau jeu;
-    private int hauteur, largeur;
+    private int hauteur, largeur;//en pixels
     private int col=-1;//la colonne a jouer : col=-1 <=> personne ne joue
     private String message;
     private JLabel texte;
@@ -79,7 +79,7 @@ public class Panneau extends JPanel implements MouseListener{
     /**Methode qui permet de gerer l'evenement de clic qui un tour du jeu*/
     public void mousePressed(MouseEvent ev) {
         int lc = largeur/jeu.getLargeur(); //largeur cellule
-        int j = ev.getX() / lc;
+        int j = ev.getX() / lc;//conversion de l'abscisse en indice de colonne
 		if (jeu.colonneInvalide(j))
 		    setMessage("La colonne doit etre entre 0 et "+(jeu.getLargeur()-1)+" !");
         else{

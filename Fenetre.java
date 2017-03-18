@@ -103,7 +103,7 @@ public class Fenetre extends JFrame {
     private JComboBox choix;
 
 	private JSlider mySlider(){
-		JSlider s = new JSlider(JSlider.HORIZONTAL,10,100,100);
+		JSlider s = new JSlider(JSlider.HORIZONTAL,10,100,10);
 		//Create the label table
 		Hashtable labelTable = new Hashtable();
 		labelTable.put( new Integer( 10), new JLabel("Rapide") );
