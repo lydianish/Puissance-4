@@ -7,6 +7,14 @@ import java.awt.event.MouseListener;
 /**Classe decrivant le panneau ou sera dessine le plateau de jeu*/
 public class Panneau extends JPanel implements MouseListener{
 
+    private Plateau jeu;
+    private int hauteur, largeur;
+    private int col=-1;//la colonne a jouer : col=-1 <=> personne ne joue
+    private String message;
+    private JLabel texte;
+    private boolean pret = true; //pret=true => qq'un peut joeur, pret = false => qq'un est en train de jouer
+    private int gagne = -1;
+
     /**Constructeur du panneau
      * @param jeu le plateau
      * @param largeur la largeur en nombre de pixels
@@ -29,23 +37,18 @@ public class Panneau extends JPanel implements MouseListener{
 	/**Methode qui permet de jouer un tour pas a pas
      *(on voit le pion descendre jusqu'a sa position finale)*/
 	public void avance(){
-        pret = false;
-        while (descentePossible){
-            setMessage();
-            descentePossible=jeu.jouePaP(lig,col);
-            lig++;
-            try {
-                aff.sleep(attente);
+        if (col!=-1){
+            pret = false;
+            jeu.joue(col,aff);
+            col = -1;
+            gagne = jeu.gagne();
+            if (gagne==-1) {
+                pret = true;
+                setMessage();
             }
-            catch (InterruptedException e){}
-        }
-        jeu.setNiveauCol(col,jeu.getNiveauCol(col)+1);
-        gagne = jeu.gagne();
-        if (gagne==-1)
-            pret = true;
-        else {
-            jeu.joueurSuivant();
-            setMessage("Félicitations ! " + jeu.getCouleurJoueur() + " a gagné !");
+            else {
+                setMessage("Félicitations ! " + jeu.getCouleurGagnant() + " a gagné !");
+            }
         }
 	}
 
@@ -60,8 +63,9 @@ public class Panneau extends JPanel implements MouseListener{
 	public void effacer(){
         jeu.effacer();
         setMessage();
-        descentePossible = false;
         pret = true;
+        col = -1;
+        gagne = -1;
     }
 
 	public void paintComponent(Graphics g){
@@ -82,10 +86,7 @@ public class Panneau extends JPanel implements MouseListener{
                 setMessage("La colonne "+j+" est deja pleine !");
             else{
                 if (pret) {
-                    lig = 0;
                     col = j;
-                    descentePossible = true;
-                    //avance();
                 }
             }
         }
@@ -98,19 +99,8 @@ public class Panneau extends JPanel implements MouseListener{
     public void mouseExited(MouseEvent e) {}
 
 
-	private Plateau jeu;
-	private int hauteur, largeur, lig, col;
-    private String message;
-    private JLabel texte;
-	private boolean descentePossible = false;
-	private boolean pret = true;
-	private int attente = 250, gagne = -1;
 
-    public int getAttente() {return attente;}
 
-    /**Methode qui permet de gerer la vitesse de chute d'un pion
-     * @param attente le temps d'attente en millisecondes*/
-    public void setAttente(int attente) {this.attente = attente;}
 
     private void setMessage(){
         this.message = "Au "+ jeu.getCouleurJoueur()+" de jouer... ";
