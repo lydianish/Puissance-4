@@ -19,9 +19,6 @@ public class Fenetre extends JFrame {
         super();
         this.jeu = jeu;
 
-		largeurP = jeu.getLargeur()*pixels;
-		hauteurP = jeu.getHauteur()*pixels;
-
         setTitle("Puissance 4");
         setSize(largeurP,hauteurP + 2*hauteurM);
         
@@ -51,6 +48,7 @@ public class Fenetre extends JFrame {
         contenu.add(bottom);
  		  
         pack();
+        setResizable(false);
         setVisible(true);
 
 		newgame.addActionListener(new ActionListener() {
@@ -84,8 +82,8 @@ public class Fenetre extends JFrame {
 	 private Plateau jeu;
     
     private int pixels = 100;
-	private int largeurP;
-    private int hauteurP;
+	private int largeurP = 700;// or Math.min(jeu.getLargeur()*pixels,Toolkit.getDefaultToolkit().getScreenSize().width);;
+    private int hauteurP = 600;
 	private int hauteurM = 50;
 
     private JButton newgame;
