@@ -95,13 +95,21 @@ public class Plateau
     public void affiche(Graphics g, int largeur, int hauteur){
         int height = hauteur/nbl;
         int width = largeur/nbc;
-
+        Graphics2D g2 = (Graphics2D)g;
         for (int i=0; i<nbl; i++){
             for (int j=0; j<nbc; j++){
                 if (dansVecteurGagnant(i,j)){
                     //CHOIX DE LA COULEUR - A REVOIR
-                    g.setColor(Color.getHSBColor(0.5f,0.265f,0.933f));
-                    g.fillRect(j*width,i*height,width,height);
+                    //g.setColor(Color.getHSBColor(0.5f,0.265f,0.933f));
+                    //g.fillRect(j*width,i*height,width,height);
+                    if (joueurGagnant==joueur1)
+                        g2.setColor(Color.yellow.darker());
+                    else
+                        g2.setColor(Color.red.darker());
+                    g2.setStroke(new BasicStroke(10));
+                    g2.drawOval(j*width+width/10,i*height+height/10,4*width/5,4*height/5);
+
+
                 }
                 if (grille[i][j]==joueur1){
                     g.setColor(Color.yellow);
