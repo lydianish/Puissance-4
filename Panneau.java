@@ -87,15 +87,8 @@ public class Panneau extends JPanel implements MouseListener{
                 setMessage("La colonne "+j+" est deja pleine !");
             else{
                 if (pret) {
-                    if (mode!=0 && jeu.getJoueurCourant()==Plateau.joueur2) {
-                        switch (mode){
-                            case 1 : col = jeu.joueOrdiFacile(); break;
-                            case 2 : col = jeu.joueOrdiMoyen(); break;
-                            case 3 : col = jeu.joueOrdiDifficile(); break;
-                        }
-                    }
-                    else
-                        col = j;
+                    if (mode==0 || jeu.getJoueurCourant()==Plateau.joueur1)
+                    col = j;
                 }
             }
         }
@@ -118,7 +111,7 @@ public class Panneau extends JPanel implements MouseListener{
             if (jeu.getJoueurCourant()==Plateau.joueur1)
                 this.message = "A vous de jouer... ";
             else
-                this.message = "A l'ordinateur de jouer... Veuillez cliquer. ";
+                this.message = "A l'ordinateur de jouer... ";
         }
     }
 
@@ -150,8 +143,16 @@ public class Panneau extends JPanel implements MouseListener{
         @Override
         public void run() {
             while (!interrupted())
-                if(pret)
+                if(pret) {
+                    if (mode!=0 && jeu.getJoueurCourant()==Plateau.joueur2) {
+                        switch (mode){
+                            case 1 : col = jeu.joueOrdiFacile(); break;
+                            case 2 : col = jeu.joueOrdiMoyen(); break;
+                            case 3 : col = jeu.joueOrdiDifficile(); break;
+                        }
+                    }
                     avance();
+                }
         }
     };
 

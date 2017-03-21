@@ -115,7 +115,7 @@ public class Fenetre extends JFrame {
 
     private JComboBox myComboBox(){
         JComboBox c = new JComboBox();
-        c.addItem("Deux Joeurs");
+        c.addItem("Deux Joueurs");
         c.addItem("Un Joueur - Facile");
         c.addItem("Un Joueur - Moyen");
         c.addItem("Un Joueur - Difficile");
