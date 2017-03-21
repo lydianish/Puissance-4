@@ -19,6 +19,7 @@ public class Plateau
     private int indiceVecteurGagant = -1;//l'indice de la derniere case ajoutee dans le vecteur gagnant
     private int attente = 10; //nombre de millisecondes entre chaque etape de la chute du pion
 
+
     //CONSTRUCTEUR
 	public Plateau(){
 		joueurCourant  = joueur1;	//joueurCourant
@@ -61,7 +62,17 @@ public class Plateau
 
     /**Methode qui renvoie vrai ssi la colonne j est pleine*/
     public boolean colonnePleine(int j){
-        return grille[0][j]!=0;
+        return niveauCol[j]==nbl;
+    }
+
+    /**Methode qui renvoie vrai ssi la grille est pleine*/
+    public boolean grillePleine(){
+        boolean plein = true;
+        int j = 0;
+        while(j<nbc && colonnePleine(j)){
+            j++;
+        }
+        return j==nbc;
     }
 
     /**Methode qui renvoie la hauteur de la grille (nombre de lignes)*/
@@ -188,7 +199,13 @@ public class Plateau
     /**Methode qui permet de jouer contre l'ordinateur, niveau facile (l'ordi joue au hasard)
      * @return la colonne a jouer*/
     public int joueOrdiFacile(){
-        return (int)(Math.random() * (nbc));//entier au hasard entre 0 et nbc-1
+        int j = -1;
+        boolean trouve = false;
+        while (!trouve) {
+            j = (int) (Math.random() * (nbc));
+            trouve = !colonnePleine(j);
+        }
+        return j;//entier au hasard entre 0 et nbc-1
     }
 
     /**Methode qui permet de jouer contre l'ordinateur, niveau moyen

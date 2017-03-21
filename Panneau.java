@@ -44,8 +44,12 @@ public class Panneau extends JPanel implements MouseListener{
             col = -1;
             gagne = jeu.gagne();
             if (gagne==-1) {
-                pret = true;
-                setMessage();
+                if(jeu.grillePleine())
+                    setMessage("Le jeu est fini... Personne n'a gagné !");
+                else {
+                    pret = true;
+                    setMessage();
+                }
             }
             else {
                 setMessageVictoire();
@@ -83,10 +87,10 @@ public class Panneau extends JPanel implements MouseListener{
 		if (jeu.colonneInvalide(j))
 		    setMessage("La colonne doit etre entre 0 et "+(jeu.getLargeur()-1)+" !");
         else{
-            if (jeu.colonnePleine(j))
-                setMessage("La colonne "+j+" est deja pleine !");
-            else{
-                if (pret) {
+            if (pret){
+                if (jeu.colonnePleine(j))
+                    setMessage("La colonne "+j+" est deja pleine !");
+                else{
                     if (mode==0 || jeu.getJoueurCourant()==Plateau.joueur1)
                     col = j;
                 }
