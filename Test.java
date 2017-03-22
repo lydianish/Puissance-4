@@ -4,20 +4,15 @@ public class Test{
 	
 		Plateau p = new Plateau();
 
-        Fenetre f = new Fenetre(p);
-		/*int j = -1;
-        boolean fini = false;
-        while (!fini && j==-1){
-            j=p.deuxJoueurs();
-            fini = p.estPlein();
+        /*try {
+            p.joue(1, 2);
+            p.joue(1, 2);
+            p.joue(1, 2);
         }
-
-        System.out.println("Le jeu est fini!");
-        if (j!=-1)
-            System.out.println("le joueur " + j + " a gagne!");
-        else
-            System.out.println("Personne n'a gagne!");
-*/
+        catch (Exception e){}*/
+        Fenetre f = new Fenetre(p);
+       /*int v = p.joueOrdiMoyen();
+        System.out.println(v);*/
 
 	}
 

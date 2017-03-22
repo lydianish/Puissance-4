@@ -28,7 +28,11 @@ public class Fenetre extends JFrame {
         contenu.setLayout(new BoxLayout(contenu, BoxLayout.Y_AXIS));
  		  
         top = new JPanel();
-        top.setPreferredSize( new Dimension(largeurP, hauteurM ) );
+        top.setPreferredSize( new Dimension(largeurP,hauteurM ) );
+
+        top.setLayout(new FlowLayout(FlowLayout.LEADING,40,10));
+        choix = myComboBox();
+        top.add(choix);
         texte = new JLabel();
         top.add(texte);
 
@@ -36,8 +40,11 @@ public class Fenetre extends JFrame {
  		  
         bottom = new JPanel();
         bottom.setPreferredSize( new Dimension(largeurP, hauteurM ) );
-        choix = myComboBox();
-        bottom.add(choix);
+        bottom.setLayout(new FlowLayout(FlowLayout.CENTER,20,10));
+
+        profondeur = mySpinner();
+        bottom.add(profondeur);
+
         slider = mySlider();
         bottom.add(slider);
         newgame = new JButton("Nouvelle Partie");
@@ -82,6 +89,13 @@ public class Fenetre extends JFrame {
             }
         });
 
+        profondeur.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                jeu.setProfondeur((Integer)((JSpinner)e.getSource()).getValue());
+            }
+        });
+
     }
     
     
@@ -91,9 +105,9 @@ public class Fenetre extends JFrame {
     private JPanel bottom;
     private Plateau jeu;
     
-    //private int pixels = 100;
-	private int largeurP = 700;// or Math.min(jeu.getLargeur()*pixels,Toolkit.getDefaultToolkit().getScreenSize().width);;
-    private int hauteurP = 600;
+    private int pixels = 90;
+	private int largeurP = 7*pixels;// or Math.min(jeu.getLargeur()*pixels,Toolkit.getDefaultToolkit().getScreenSize().width);;
+    private int hauteurP = 6*pixels;
 	private int hauteurM = 50;
 
     private JButton newgame;
@@ -101,13 +115,15 @@ public class Fenetre extends JFrame {
     private JLabel texte;
     private JSlider slider;
     private JComboBox choix;
+    private JSpinner profondeur;
 
 	private JSlider mySlider(){
-		JSlider s = new JSlider(JSlider.HORIZONTAL,10,100,10);
+		JSlider s = new JSlider(JSlider.HORIZONTAL,Plateau.attenteMin,Plateau.attenteMax
+                ,Plateau.attenteMin);
 		//Create the label table
 		Hashtable labelTable = new Hashtable();
-		labelTable.put( new Integer( 10), new JLabel("Rapide") );
-		labelTable.put( new Integer( 100), new JLabel("Lent") );
+		labelTable.put( new Integer( Plateau.attenteMin), new JLabel("Rapide") );
+		labelTable.put( new Integer( Plateau.attenteMax), new JLabel("Lent") );
 		s.setLabelTable( labelTable );
 		s.setPaintLabels(true);
 		return s;
@@ -120,6 +136,13 @@ public class Fenetre extends JFrame {
         c.addItem("Un Joueur - Moyen");
         c.addItem("Un Joueur - Difficile");
         return c;
+    }
+
+    private JSpinner mySpinner(){
+        JSpinner s = new JSpinner(new SpinnerNumberModel(1,1,Plateau.profondeurMax,1));
+        JLabel l = new JLabel("Profondeur :");
+        l.setLabelFor(s);bottom.add(l);
+        return s;
     }
 
 }

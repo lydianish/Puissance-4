@@ -5,26 +5,35 @@ public class Plateau
 {
 
 	public static final int joueur1 = 1;			//joueur 1
-	public static final int joueur2 = 2;			//joueur 2
-    private String couleur1 = "JAUNE" ;
-    private String couleur2 = "ROUGE" ;
+    public static final int joueur2 = 2;			//joueur 2
+    private  final String couleur1 = "JAUNE" ;
+    private  final String couleur2 = "ROUGE" ;
+    public static final int attenteMin = 10;
+    public static final int attenteMax = 100;
+    public static final int profondeurMax = 7;
+
+    //Joueur
     private int joueurCourant;
     private int joueurGagnant;
+    //Grille
     private int nbl = 6;
     private int nbc = 7;
     private int[][] grille;			//grille du jeu
-	private int[] niveauCol;		//tableau des niveaux pour chaque colonne
+	private int[] niveauCol;		//tableau du nb de pions dans chaque colonne
 	private int ligneCourante, colonneCourante;	//indice de la ligne et de la colonne courante
     private int[][] vecteurGagnant; //la 1ere est le vecteur des 4 i et le 2eme le vecteur de 4 j qui ont permis de ganger
     private int indiceVecteurGagant = -1;//l'indice de la derniere case ajoutee dans le vecteur gagnant
-    private int attente = 10; //nombre de millisecondes entre chaque etape de la chute du pion
-
+    //Affichage
+    private int attente = attenteMin; //nombre de millisecondes entre chaque etape de la chute du pion
+    //Intelligence artificielle
+    private int profondeur = 2;
+    private int colonneOrdi = -1;
 
     //CONSTRUCTEUR
 	public Plateau(){
-		joueurCourant  = joueur1;	//joueurCourant
-		grille = new int[nbl][nbc];		//grille du jeu
-		niveauCol = new int[nbc];		//tableau des niveaux pour chaque colonne
+		joueurCourant  = joueur1;
+		grille = new int[nbl][nbc];
+		niveauCol = new int[nbc];
         vecteurGagnant = new int[2][4];
 	}
 
@@ -67,7 +76,6 @@ public class Plateau
 
     /**Methode qui renvoie vrai ssi la grille est pleine*/
     public boolean grillePleine(){
-        boolean plein = true;
         int j = 0;
         while(j<nbc && colonnePleine(j)){
             j++;
@@ -81,15 +89,36 @@ public class Plateau
     /**Methode qui renvoie la largeur de la grille (nombre de colonnes)*/
     public int getLargeur(){return nbc;}
 
-
     //MODIFICATEURS
 
     /**Methode qui permet de gerer la vitesse de chute d'un pion
      * @param attente le temps d'attente en millisecondes*/
     public void setAttente(int attente) {this.attente = attente;}
 
+    /**Methode qui permet de gerer la profondeur de l'arbre dans les algo min-max er alpha-beta
+     * @param profondeur represente le nombre de coups que l'ordinateur peut anticiper*/
+    public void setProfondeur(int profondeur){this.profondeur=profondeur;}
 
 	//AUTRES METHODES
+    /**Methode qui renvoie une copie du plateau courant*/
+    public Plateau copie(){
+        Plateau p = new Plateau();
+        p.joueurCourant = this.joueurCourant;
+        p.joueurGagnant = this. joueurGagnant;
+        p.nbc = this.nbc;
+        p.nbl = this.nbl;
+        p.grille = this.grille.clone();
+        p.niveauCol = this.niveauCol.clone();
+        p.ligneCourante = this.ligneCourante;
+        p.colonneCourante = this. colonneCourante;
+        p.vecteurGagnant = this.vecteurGagnant.clone();
+        p.indiceVecteurGagant = this.indiceVecteurGagant;
+        p.attente = this.attente;
+        p.profondeur = this.profondeur;
+        p.colonneOrdi = this.colonneOrdi;
+        return p;
+    }
+
     /**Methode pour reinitialiser le plateau de jeu*/
     public void effacer(){
         grille = new int[nbl][nbc];
@@ -110,17 +139,12 @@ public class Plateau
         for (int i=0; i<nbl; i++){
             for (int j=0; j<nbc; j++){
                 if (dansVecteurGagnant(i,j)){
-                    //CHOIX DE LA COULEUR - A REVOIR
-                    //g.setColor(Color.getHSBColor(0.5f,0.265f,0.933f));
-                    //g.fillRect(j*width,i*height,width,height);
                     if (joueurGagnant==joueur1)
                         g2.setColor(Color.yellow.darker());
                     else
                         g2.setColor(Color.red.darker());
-                    g2.setStroke(new BasicStroke(10));
+                    g2.setStroke(new BasicStroke(15));
                     g2.drawOval(j*width+width/10,i*height+height/10,4*width/5,4*height/5);
-
-
                 }
                 if (grille[i][j]==joueur1){
                     g.setColor(Color.yellow);
@@ -151,25 +175,25 @@ public class Plateau
         effacerVecteurGagnant();
         addVecteurGagnant(i,k);
 		if((1 + avanceLigne(i,k) + reculeLigne(i,k)) >= 4){
-			joueurGagnant = autreJoueur();//quand il a joue le pion, il a passe la main
+			joueurGagnant = grille[i][k];
 			return g;
 		}else{
             effacerVecteurGagnant();
             addVecteurGagnant(i,k);
             if((1 + avanceColonne(i,k) + reculeColonne(i,k)) >= 4){
-				joueurGagnant = autreJoueur();
+				joueurGagnant =  grille[i][k];
 				return g;
 			}else{
                 effacerVecteurGagnant();
                 addVecteurGagnant(i,k);
                 if((1 + avanceDiag1(i,k) + reculeDiag1(i,k)) >= 4){
-					joueurGagnant = autreJoueur();
+					joueurGagnant =  grille[i][k];
 					return g;
 				}else{
                     effacerVecteurGagnant();
                     addVecteurGagnant(i,k);
                     if((1 + avanceDiag2(i,k) + reculeDiag2(i,k)) >= 4){
-						joueurGagnant = autreJoueur();
+						joueurGagnant =  grille[i][k];
 						return g;
 					}
 				}
@@ -177,6 +201,23 @@ public class Plateau
 		}
 		return res;
 	}
+
+	/**Methode qui permet a un joueur de jouer un pion
+     * @param j la colonne a jouer
+     * @param joueur le numero du joueur
+     * @throws ExceptionColonneInvalide si j n'est pas un indice valide de colonne
+     * @throws ExceptionColonnePleine si la colonne j est deja pleine*/
+	public void joue(int j, int joueur) throws ExceptionColonneInvalide,ExceptionColonnePleine {
+        if (colonneInvalide(j))
+            throw new ExceptionColonneInvalide(j);
+        if (niveauCol[j]==nbl)
+            throw new ExceptionColonnePleine(j);
+        joueurCourant = joueur;
+        colonneCourante = j;
+        ligneCourante = nbl - 1 - niveauCol[j];
+        grille[ligneCourante][colonneCourante] = joueurCourant;
+        niveauCol[j]++;
+    }
 
     /**Methode permettant au joueur courant de jouer la colonne j en simulant la chute du pion
      * @param j la colonne a jouer
@@ -211,21 +252,77 @@ public class Plateau
     /**Methode qui permet de jouer contre l'ordinateur, niveau moyen
      * @return la colonne a jouer*/
     public int joueOrdiMoyen(){
-        //A REFAIRE!!!
-        return (int)(Math.random() * (nbc));//entier au hasard entre 0 et nbc-1
+        //A REVOIR!!!
+        evaluerOrdi(0);
+        return colonneOrdi;
     }
     /**Methode qui permet de jouer contre l'ordinateur, niveau difficile
      * @return la colonne a jouer*/
     public int joueOrdiDifficile(){
         //A REFAIRE!!!
-        return (int)(Math.random() * (nbc));//entier au hasard entre 0 et nbc-1
+        evaluerOrdi(0);
+        return colonneOrdi;
     }
 
+    private int evaluerOrdi(int niveau){
+        if (niveau==profondeur)
+            return valeur();
+        Plateau p = this.copie();
+        int val = Integer.MIN_VALUE;
+        int valrec;
+        for (int j=0; j<nbc; j++){
+            try{
+                p.joue(j,joueur2);//l'ordinateur joue les coups possibles
+            }catch (Exception e){continue;}//colonne pleine
+            valrec = p.evaluerAdv(niveau+1);
+            if (valrec>val){
+                val = valrec;
+                colonneOrdi = j;
+            }
+            p.effacerDernier();
+        }
+        return val;
+    }
+    private int evaluerAdv(int niveau){
+        if (niveau==profondeur)
+            return valeur();
+        Plateau p = this.copie();
+        int val = Integer.MAX_VALUE;
+        int valrec;
+        for (int j=0; j<nbc; j++){
+            try{
+                p.joue(j,joueur1);//l'adversaire joue les coups possibles
+            }catch (Exception e){continue;}//colonne pleine
+            valrec = p.evaluerOrdi(niveau+1);
+            if (valrec<val){
+                val = valrec;
+                colonneOrdi = j;
+            }
+            p.effacerDernier();
+        }
+        return val;
+    }
+
+    private void effacerDernier(){
+        grille[ligneCourante][colonneCourante]=0;
+        niveauCol[colonneCourante]--;
+    }
     /*---METHODES PRIVEES---*/
 
     //Methode qui fait passer la main au joueur suivant
     private void joueurSuivant(){
         joueurCourant = joueur1 + joueur2 - joueurCourant;
+    }
+
+    //Methode qui permet a l'odinateur de savoir si la configuration courante de la grille lui est favorable
+    private int valeur(){
+        colonneOrdi = colonneCourante;
+        int g = gagne();
+        if (g==joueur2)//l'ordinateur a gagne
+            return Integer.MAX_VALUE;
+        if (g==-1)//personne n'a gagne
+            return 0;
+        return Integer.MIN_VALUE;//l'adversaire a gagne
     }
 
     /*Methode qui permet de jouer un pas d'un tour (d'ou le nom "pas a pas")
