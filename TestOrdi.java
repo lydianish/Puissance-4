@@ -33,7 +33,6 @@ public class TestOrdi{
 					int c = p.gagne();
 					if(c != -1){
 						System.out.println("Vous avez gagné ! ");
-						p.afficheVecteurGagnant();
 						System.out.println("Souhaitez_vous continuer ? (Oui/Non)");
 						sc.nextLine();
 						String str = sc.nextLine();
@@ -72,7 +71,6 @@ public class TestOrdi{
 						int c = p.gagne();
 						if(c != -1){
 							System.out.println("L'ordinateur a gagné ! ");
-							p.afficheVecteurGagnant();
 							System.out.println("Souhaitez_vous continuer ? (Oui/Non)");
 							sc.nextLine();
 							String str = sc.nextLine();
