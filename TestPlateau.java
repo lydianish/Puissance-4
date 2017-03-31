@@ -1,5 +1,4 @@
 import java.util.Scanner;
-// {} [] () || reign /**/
 
 public class TestPlateau{
 	public static void main(String[] args){
@@ -32,7 +31,6 @@ public class TestPlateau{
 				int c = p.gagne();
 				if(c != -1){
 					System.out.println("Le joueur " + c + " a gagné ! ");
-					p.afficheVecteurGagnant();
 					System.out.println("Souhaitez_vous continuer ? (Oui/Non)");
 					sc.nextLine();
 					String str = sc.nextLine();
