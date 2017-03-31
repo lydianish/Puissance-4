@@ -31,7 +31,7 @@ public class Plateau
     //Affichage
     private int attente = attenteMin; //nombre de millisecondes entre chaque etape de la chute du pion
     //Intelligence artificielle
-    private int profondeur = 3;
+    private int profondeur = 1;
     private int colonneOrdi = -1;
 
     //CONSTRUCTEUR
