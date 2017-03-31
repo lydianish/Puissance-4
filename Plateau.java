@@ -1,199 +1,541 @@
-import java.awt.*;
 import java.util.*;
 
-public class Plateau
-{
+public class Plateau{
 
-	public static final int joueur1 = 1;			//joueur 1
-    public static final int joueur2 = 2;			//joueur 2
-    private  final String couleur1 = "JAUNE" ;
-    private  final String couleur2 = "ROUGE" ;
-    public static final int attenteMin = 10;
-    public static final int attenteMax = 100;
-    public static final int profondeurMax = 7;
+	private int joueur1;			//joueur 1
+	private int joueur2;			//joueur 2
+	private int joueurCourant;		//joueurCourant
+	private int[][] grille;			//grille du jeu
+	private int[] niveauCol;		//tableau des niveaux pour chaque colonne
+	private boolean pret = false;		//booleen permettant la transition entre les deux methodes synchronisées avance et imprime
+	private int ligneCourante = 0, colonneCourante = 0;	//indice de la ligne et de la colonne courante
+	private int ligneGagnante = 0, colonneGagnante = 0;	//indice de la ligne et de la colonne gagnant
+	private String directionGagnante = "";			//direction dans laquelle le joueur a gagne si c'est le cas, l, c, d1 ou d2		
 
-    //Joueur
-    private int joueurCourant;
-    private int joueurGagnant;
-    //Grille
-    private int nbl = 6;
-    private int nbc = 7;
-    private int[][] grille;			//grille du jeu
-	private int[] niveauCol;		//tableau du nb de pions dans chaque colonne
-	private int ligneCourante, colonneCourante;	//indice de la ligne et de la colonne courante
-    private int[][] vecteurGagnant; //la 1ere est le vecteur des 4 i et le 2eme le vecteur de 4 j qui ont permis de ganger
-    private int indiceVecteurGagant = -1;//l'indice de la derniere case ajoutee dans le vecteur gagnant
-    //Affichage
-    private int attente = attenteMin; //nombre de millisecondes entre chaque etape de la chute du pion
-    //Intelligence artificielle
-    private int profondeur = 3;
-    private int colonneOrdi = -1;
-
-    //CONSTRUCTEUR
+	//CONSTRUCTEUR
 	public Plateau(){
-		joueurCourant  = joueur1;
-		grille = new int[nbl][nbc];
-		niveauCol = new int[nbc];
-        vecteurGagnant = new int[2][4];
+		joueur1  = 1;			//joueur 1
+		joueur2  = 2;			//joueur 2
+		joueurCourant  = joueur1;	//joueurCourant
+		grille = new int[6][7];		//grille du jeu
+		niveauCol = new int[7];		//tableau des niveaux pour chaque colonne
 	}
 
-	//ACCESSEURS
-
-    /**Methode qui renvoie le numero du joueur courant*/
-    public int getJoueurCourant(){return joueurCourant;}
-
-    /**Methode qui renvoie le numero du joueur qui a gagne*/
-    public int getJoueurGagnant(){return joueurGagnant;}
-
-    /**Methode qui renvoie le numero de l'autre joueur (celui qui n'est pas le joueur courant*/
-	public int autreJoueur(){
-        return joueur1 + joueur2 - joueurCourant;
+	//ACCESSEURS & MODIFICATEURS & METHODES
+	/** Methode qui renvoie le joueur courant 
+	* @return le numero du joueur courant (1 pour le joueur1 & 2 pour le joueur2)
+	*/
+	public int getJoueurCourant(){
+		return joueurCourant;
 	}
 
-    /**Methode qui revoie le nom (couleur) du joueur courant*/
-    public String getCouleurJoueur() {
-        if (joueurCourant==joueur1)
-            return couleur1;
-        return couleur2;
-    }
+	/** Methode qui modifie le joueur courant, j devient le joueur courant 
+	* @param j colonne à jouer 
+	*/
+	public void setJoueurCourant(int j){
+		joueurCourant = j;
+	}
 
-    /**Methode qui revoie le nom (couleur) du joueur qui a gagne*/
-    public String getCouleurGagnant() {
-        if (joueurGagnant==joueur1)
-            return couleur1;
-        return couleur2;
-    }
-
-    /**Methode qui renvoie vrai ssi j n'est pas un indice valide de colonne*/
-    public boolean colonneInvalide(int j){
-        return (j<0 || j>nbc-1);
-    }
-
-    /**Methode qui renvoie vrai ssi la colonne j est pleine*/
-    public boolean colonnePleine(int j){
-        return niveauCol[j]==nbl;
-    }
-
-    /**Methode qui renvoie vrai ssi la grille est pleine*/
-    public boolean grillePleine(){
-        int j = 0;
-        while(j<nbc && colonnePleine(j)){
-            j++;
-        }
-        return j==nbc;
-    }
-
-    /**Methode qui renvoie la hauteur de la grille (nombre de lignes)*/
-    public int getHauteur(){return nbl;}
-
-    /**Methode qui renvoie la largeur de la grille (nombre de colonnes)*/
-    public int getLargeur(){return nbc;}
-
-    //MODIFICATEURS
-
-    /**Methode qui permet de gerer la vitesse de chute d'un pion
-     * @param attente le temps d'attente en millisecondes*/
-    public void setAttente(int attente) {this.attente = attente;}
-
-    /**Methode qui permet de gerer la profondeur de l'arbre dans les algo min-max er alpha-beta
-     * @param profondeur represente le nombre de coups que l'ordinateur peut anticiper*/
-    public void setProfondeur(int profondeur){this.profondeur=profondeur;}
-
-	//AUTRES METHODES
-    /**Methode qui renvoie une copie du plateau courant*/
-    public Plateau copie(){
-        Plateau p = new Plateau();
-        p.joueurCourant = this.joueurCourant;
-        p.joueurGagnant = this. joueurGagnant;
-        p.nbc = this.nbc;
-        p.nbl = this.nbl;
-        p.grille = this.grille.clone();
-        p.niveauCol = this.niveauCol.clone();
-        p.ligneCourante = this.ligneCourante;
-        p.colonneCourante = this. colonneCourante;
-        p.vecteurGagnant = this.vecteurGagnant.clone();
-        p.indiceVecteurGagant = this.indiceVecteurGagant;
-        p.attente = this.attente;
-        p.profondeur = this.profondeur;
-        p.colonneOrdi = this.colonneOrdi;
-        return p;
-    }
-
-    /**Methode pour reinitialiser le plateau de jeu*/
-    public void effacer(){
-        grille = new int[nbl][nbc];
-        niveauCol = new int[nbc];
-        joueurCourant = joueur1;
-        effacerVecteurGagnant();
-    }
-
-    /**Methode pour dessiner le plateau de jeu dans un panneau
-     * (dessine les cercles rouges, jaunes et blancs
-     * @param g le parametre de type Graphics qui permet dessiner
-     * @param largeur la largeur du panneau en nombre de pixels
-     * @param hauteur la hauteur du panneau en nombre de pixels*/
-    public void affiche(Graphics g, int largeur, int hauteur){
-        int height = hauteur/nbl;
-        int width = largeur/nbc;
-        Graphics2D g2 = (Graphics2D)g;
-        for (int i=0; i<nbl; i++){
-            for (int j=0; j<nbc; j++){
-                if (dansVecteurGagnant(i,j)){
-                    if (joueurGagnant==joueur1)
-                        g2.setColor(Color.yellow.darker());
-                    else
-                        g2.setColor(Color.red.darker());
-                    g2.setStroke(new BasicStroke(15));
-                    g2.drawOval(j*width+width/10,i*height+height/10,4*width/5,4*height/5);
-                }
-                if (grille[i][j]==joueur1){
-                    g.setColor(Color.yellow);
-                }
-                else {
-                    if (grille[i][j]==joueur2){
-                        g.setColor(Color.red);
-                    }
-                    else
-                    {
-                        g.setColor(Color.cyan);
-                    }
-                }
-                g.fillOval(j*width+width/10,i*height+height/10,4*width/5,4*height/5);
-            }
-        }
-
-    }
+	/** Methode qui renvoie le joueur suivant 
+	* @return le numero du joueur suivant
+	*/
+	public int getJoueurSuivant(){
+		int js = 0;
+		if(joueurCourant == joueur1){
+			js = joueur2;
+		}else{
+			if(joueurCourant == joueur2){
+				js = joueur1;
+			}
+		}
+		return js;
+	}
 
 
-    /**Methode qui permet de savoir si la partie est gagnee apres le dernier pion joue
-     * @return i si le joueur i a gagne, -1 si personne n'a gagne*/
+	//JOUEURS
+	/** Methode qui fait passer la main au joueur suivant 
+	*/
+	public void joueurSuivant(){
+		if(joueurCourant == joueur1){
+			joueurCourant = joueur2;
+		}else{
+			if(joueurCourant == joueur2){
+				joueurCourant = joueur1;
+			}
+		}
+	}
+
+	//NIVEAUX DES COLONNES
+	/** Methode qui renvoie le tableau des niveaux de colonnes
+	* @return le tableau contenant les niveaux pour chaque colonne 
+	*/
+	public int[] getNiveauCol(){
+		return niveauCol;
+	}
+
+	/** Methode qui renvoie le niveau de la colonne i  
+	* @param i indice de la colonne dont on veut connaitre le niveau(le nombre de pions qu'il contient)
+	* @return lniveau de la colonne i 
+	*/
+	public int getNiveauCol(int i){
+		return niveauCol[i];
+	}
+
+	/** Methode qui modifie le niveau de la colonne en val  
+	* @param i la colonne à modifier
+	* @param val le nombre de pion qu'on veut affecter à la ligne i 
+	*/
+	public void setNiveauCol(int i, int val){
+		niveauCol[i] = val;
+	}
+
+	/** Methode renvoie vrai si la colonne i est pleine  
+	* @param i la colonne à tester 
+	* @return vrai si la colonne i est pleine
+	*/
+	public boolean estColPleine(int i){
+		return niveauCol[i]==6;
+	}
+
+
+	//GRILLE
+	/** Methode qui renvoie la grille de jeu 
+	* @return la grille de jeu 
+	*/
+	public int[][] getGrille(){
+		return grille;
+	}
+	
+	/** Methode qui modifie la grille en g  
+	* @param g la grille à copier dans celle du plateau 
+	*/
+	public void setGrille(int[][] g){
+		int d1 = g.length, d2 = g[0].length;
+		grille = new int[d1][d2];
+		for(int i = 0; i <= d1-1; i++){
+			for(int j= 0; j <= d2-1; j++){
+				grille[i][j] = g[i][j];
+			}
+		}
+		
+	}
+	/** Methode qui renvoie le nombre de lignes de la grille 
+	* @return le nombre de lignes de la grille
+	*/
+	public int getLigne(){
+		return grille.length;
+	}
+
+	/** Methode qui renvoie le nombre de colonnes de la grille 
+	* @return le nombre de colonnes de la grille
+	*/
+	public int getColonne(){
+		return grille[0].length;
+	}
+
+ 	/** Methode qui renvoie vrai si la grille est pleine  
+	* @return vrai si le plateau est plein
+	*/
+	public boolean estPlein(){
+		boolean plein = true;
+		for(int i = 5; i >= 0; i--){
+			for(int j = 0; j <= 6; j++){
+				plein = plein && (grille[i][j] != 0);
+				if(plein == false){
+					return plein;
+				}
+			}
+		}
+		return plein;
+	}
+
+	/** Methode qui initialise le plateau  
+	*/
+	public void initialise(){
+		for(int i = 5; i >= 0; i--){
+			for(int j = 0; j <= 6; j++){
+				grille[i][j] = 0;
+			}
+		}
+		niveauCol = new int[7];
+	}
+
+	/** Methode qui renvoie vrai si la caseIJ  est occupée  
+	* @param i ligne de la case à tester
+	* @param j colonne de la case à tester
+	* @return vrai si la Case ij est occupée
+	*/
+	public boolean estOccupee(int i, int j){
+		return (grille[i][j] != 0) ;
+	}
+
+	/** Methode qui renvoie si elle existe le numero du pion qui est dans la caseIJ 
+	* @param i ligne de la case du pion à retourner
+	* @param j colonne de la case du pion à retourner 
+	* @return le pion contenu dans la Case ij si elle existe
+	*/
+	public int pion(int i, int j){
+		return grille[i][j];
+	}
+
+
+	//--- Modificateurs du champs PRET ---
+	public boolean getPret(){
+		return pret;
+	}
+
+	public void setPret(boolean b){
+		pret = b;
+	}
+
+
+	//--- Modificateurs du champs LIGNECOURANTE ---
+	public int getLigneCourante(){
+		return ligneCourante;
+	}
+
+	public void setLigneCourante(int b){
+		ligneCourante = b;
+	}
+
+
+	//--- Modificateurs du champs COLONNECOURANTE ---
+	public int getColonneCourante(){
+		return colonneCourante;
+	}
+
+	public void setColonneCourante(int b){
+		colonneCourante = b;
+	}
+
+	//--- Modificateurs du champs LIGNEGAGNANTE ---
+	public int getLigneGagnante(){
+		return ligneGagnante;
+	}
+
+	public void setLigneGagnante(int b){
+		ligneGagnante = b;
+	}
+
+
+	//--- Modificateurs du champs COLONNEGAGNANTE ---
+	public int getColonneGagnante(){
+		return colonneGagnante;
+	}
+
+	public void setColonneGagnante(int b){
+		colonneGagnante = b;
+	}
+
+	//--- Modificateurs du champs DIRECTIONGAGNANTE ---
+	public String getDirectionGagnante(){
+		return directionGagnante;
+	}
+
+	public void setDirectionGagnante(String b){
+		directionGagnante = b;
+	}
+
+
+	//LIGNE
+	/** Methode qui renvoie le nombre de pion voisins de celui du joueur de la case i,j sur la ligne
+	* @param i ligne de la case à jouer
+	* @param j colonne de la case à jouer 
+	* @return le nombre de pion voisin du pion de la case ij  sur la ligne
+	*/
+	public int avanceLigne(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int j1 = j + 1;
+			boolean rep = true;
+			while((j1 <= 6) && (grille[i][j1] != 0)){
+				rep = rep && (grille[i][j1] == grille[i][j]);
+				j1++;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+
+	public int reculeLigne(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int j1 = j - 1;
+			boolean rep = true;
+			while((j1 >= 0) && (grille[i][j1] != 0)){
+				rep = rep && (grille[i][j1] == grille[i][j]);
+				j1--;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+	//COLONNE
+	/** Methode qui renvoie le nombre de pion du joueur de la case i,j pour le joueur courant sur la colonne 
+	* @param i ligne de la case à jouer
+	* @param j colonne de la case à jouer
+	* @return le nombre de pion voisin du pion de la case ij  sur la colonne
+	*/
+	public int avanceColonne(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int i1 = i + 1;
+			boolean rep = true;
+			while((i1 <= 5) && (grille[i1][j] != 0)){
+				rep = rep && (grille[i1][j] == grille[i][j]);
+				i1++;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+
+	public int reculeColonne(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int i1 = i - 1;
+			boolean rep = true;
+			while((i1 >= 0) && (grille[i1][j] != 0)){
+				rep = rep && (grille[i1][j] == grille[i][j]);
+				i1--;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+	//DIAGONALE
+	/** Methode qui renvoie le nombre de pion du joueur de la case i,j pour le joueur courant sur la diagonale 
+	* @param i ligne de la case à jouer
+	* @param j colonne de la case à jouer
+	* @return le nombre de pion voisin du pion de la case ij  sur les deux diagonales
+	*/
+	//1ERE DIAGONALE (coin gauche superieur (0,0) au coin droit inferieur (5,6))
+	public int avanceDiag1(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int i1 = i + 1;
+			int j1 = j + 1;
+			boolean rep = true;
+			while((i1 <= 5) && (j1 <= 6) && (grille[i1][j1] != 0)){
+				rep = rep && (grille[i1][j1] == grille[i][j]);
+				i1++;
+				j1++;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+
+	public int reculeDiag1(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int i1 = i - 1;
+			int j1 = j - 1;
+			boolean rep = true;
+			while((i1 >= 0) && (j1 >= 0) && (grille[i1][j1] != 0)){
+				rep = rep && (grille[i1][j1] == grille[i][j]);
+				i1--;
+				j1--;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+	//2EME DIAGONALE (coin gauche inferieur (5,0) au coin droit superieur (0,6))
+	public int avanceDiag2(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int i1 = i - 1;
+			int j1 = j + 1;
+			boolean rep = true;
+			while((i1 >= 0) && (j1 <= 6) && (grille[i1][j1] != 0)){
+				rep = rep && (grille[i1][j1] == grille[i][j]);
+				i1--;
+				j1++;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+
+	public int reculeDiag2(int i, int j){
+		int nb = 0;
+		if(grille[i][j] != 0){
+			int i1 = i + 1;
+			int j1 = j - 1;
+			boolean rep = true;
+			while((i1 <= 5) && (j1 >= 0) && (grille[i1][j1] != 0)){
+				rep = rep && (grille[i1][j1] == grille[i][j]);
+				i1++;
+				j1--;
+				if(rep){
+					nb++;
+				}else{
+					return nb;
+				}
+			}
+			return nb;
+		}else{
+			return nb;
+		}
+	}
+
+	/** Methode qui fait avancer le jeu 
+	* @param i colonne à jouer
+	*/
+	public synchronized void avance(int i) throws InterruptedException {
+		if(!pret){
+			try{
+				joue(i);
+			}catch(ColonnePleineException e){
+				System.out.println(e.getMessage());
+			}
+			pret = true;
+			notifyAll();
+		}else{
+			wait();
+		}
+		
+	}
+
+	/** Methode qui afficle le jeu 
+	*/
+	public synchronized void imprime() throws InterruptedException{
+		if(pret){
+			String g = "-- ";
+			for(int k= 0; k < getColonne(); k++){
+				System.out.print(g);
+			}
+			System.out.println();
+			for(int i = 0; i < getLigne(); i++){
+				for(int j= 0; j < getColonne(); j++){
+					if(grille[i][j] == joueur1){
+						System.out.print("" + joueur1);
+					}else{
+						if(grille[i][j] == joueur2){
+							System.out.print("" + joueur2);
+						}else{
+							System.out.print(" ");
+						}
+					}
+					System.out.print(" |");
+				}
+				System.out.print("\n");
+				for(int h = 0; h < getColonne(); h++){
+					System.out.print(g);
+				}
+				System.out.print("\n");
+			}
+			pret = false;
+			notifyAll();
+		}else{
+			wait();
+		}
+	}
+
+	/** Methode qui modifie le plateau pour que le joueur courant ait joué dans le plateau à la colonne i
+	* @param i colonne de la case à jouer
+	* @return le nombre de pion dans la colonne i
+	*/
+	public int joue(int i) throws ColonnePleineException{
+		if(!estColPleine(i)){
+			setNiveauCol(i, getNiveauCol(i)+1);
+			grille[5 - (getNiveauCol(i)-1)][i] = joueurCourant;
+			ligneCourante = 6 - getNiveauCol(i);
+			colonneCourante = i;
+			//System.out.println("ligne et colonne courantes (" + ligneCourante + " " + colonneCourante + ")");
+			joueurSuivant();
+		}else{
+			throw new ColonnePleineException("La colonne : " + i + " est déjà pleine");
+		}
+		return getNiveauCol(i);
+	}
+
+
+	/** Methode qui rend 1 si le joueur courant a gagne, -1 sinon
+	* regarde si le dernier pion inserer a fait gagne le joueur courant
+	* @return i si le joueur courant a gagné, -1  sinon 
+	*/
 	public int gagne(){
 		int res = -1;
 		int i = ligneCourante;
 		int k = colonneCourante;
 		int g = grille[i][k];
-        effacerVecteurGagnant();
-        addVecteurGagnant(i,k);
 		if((1 + avanceLigne(i,k) + reculeLigne(i,k)) >= 4){
-			joueurGagnant = grille[i][k];
+			//System.out.println("nb joueur courant ligne : " + (1 + avanceLigne(i,k) + reculeLigne(i,k)));
+			ligneGagnante = i;
+			colonneGagnante = k;
+			directionGagnante = "l";
 			return g;
 		}else{
-            effacerVecteurGagnant();
-            addVecteurGagnant(i,k);
-            if((1 + avanceColonne(i,k) + reculeColonne(i,k)) >= 4){
-				joueurGagnant =  grille[i][k];
+			if((1 + avanceColonne(i,k) + reculeColonne(i,k)) >= 4){
+				//System.out.println("nb joueur courant colonne : " + (1 + avanceColonne(i,k) + reculeColonne(i,k)));
+				ligneGagnante = i;
+				colonneGagnante = k;
+				directionGagnante = "c";
 				return g;
 			}else{
-                effacerVecteurGagnant();
-                addVecteurGagnant(i,k);
-                if((1 + avanceDiag1(i,k) + reculeDiag1(i,k)) >= 4){
-					joueurGagnant =  grille[i][k];
+				if((1 + avanceDiag1(i,k) + reculeDiag1(i,k)) >= 4){
+					//System.out.println("nb joueur courant diagonale1 : " + (1 + avanceDiag1(i,k) + reculeDiag1(i,k)));
+					ligneGagnante = i;
+					colonneGagnante = k;
+					directionGagnante = "d1";
 					return g;
 				}else{
-                    effacerVecteurGagnant();
-                    addVecteurGagnant(i,k);
-                    if((1 + avanceDiag2(i,k) + reculeDiag2(i,k)) >= 4){
-						joueurGagnant =  grille[i][k];
+					if((1 + avanceDiag2(i,k) + reculeDiag2(i,k)) >= 4){
+						//System.out.println("nb joueur courant diagonale2 : " + (1 + avanceDiag2(i,k) + reculeDiag2(i,k)));
+						ligneGagnante = i;
+						colonneGagnante = k;
+						directionGagnante = "d2";
 						return g;
 					}
 				}
@@ -201,380 +543,115 @@ public class Plateau
 		}
 		return res;
 	}
+	
 
-	/**Methode qui permet a un joueur de jouer un pion
-     * @param j la colonne a jouer
-     * @param joueur le numero du joueur
-     * @throws ExceptionColonneInvalide si j n'est pas un indice valide de colonne
-     * @throws ExceptionColonnePleine si la colonne j est deja pleine*/
-	public void joue(int j, int joueur) throws ExceptionColonneInvalide,ExceptionColonnePleine {
-        if (colonneInvalide(j))
-            throw new ExceptionColonneInvalide(j);
-        if (niveauCol[j]==nbl)
-            throw new ExceptionColonnePleine(j);
-        joueurCourant = joueur;
-        colonneCourante = j;
-        ligneCourante = nbl - 1 - niveauCol[j];
-        grille[ligneCourante][colonneCourante] = joueurCourant;
-        niveauCol[j]++;
-    }
+	/** Methode qui renvoie le vecteur gagnant (La caseIJ a permit au joueur courant de gagné la manche) 
+	* @return le vecteur gagnant(pour le joueur qui a gagné)
+	*/
+	public LinkedList<Integer> vecteurGagnant(){
+		LinkedList<Integer> vg = new LinkedList<Integer>();
+		vg.add(ligneGagnante);
+		vg.add(colonneGagnante);		//ajout de la case gagnante i et j
 
-    /**Methode permettant au joueur courant de jouer la colonne j en simulant la chute du pion
-     * @param j la colonne a jouer
-     * @param affichage le Thread qui gere l'affichage (pour pouvoir lui mettre un sleep)*/
-    public void joue(int j, Thread affichage){
-        boolean descentePossible=true;
-        int i = 0;
-        while (descentePossible){
-            descentePossible = jouePaP(i,j);
-            i++;
-            try {
-                affichage.sleep(attente);
-            }
-            catch (InterruptedException e){}
-        }
-        niveauCol[j]++;
-    }
+		int g = grille[ligneGagnante][colonneGagnante];
 
+		if(directionGagnante.equals("l")){		//gain selon la ligne
+			//on avance d'abord
+			int jla = colonneGagnante + 1;
+			while((jla <= 6) && (grille[ligneGagnante][jla] == g) && (vg.size() <= 8)){
+				vg.addLast(ligneGagnante);
+				vg.addLast(jla);	//ajout du voisin de la case gagnante i et j
+				jla = jla + 1;
+			}
+			if(vg.size() <= 8){
+				//on recule
+				int jlr = colonneGagnante - 1;
+				while((jlr >= 0) && (grille[ligneGagnante][jlr] == g) && (vg.size() <= 8)){
+					vg.addFirst(jlr);		//ajout du voisin de la case gagnante i et j
+					vg.addFirst(ligneGagnante);
+					jlr = jlr - 1;
+				}
+			}
+		}else{
+			if(directionGagnante.equals("c")){		//gain selon la colonne
+				//on avance d'abord
+				int ila = ligneGagnante + 1;
+				while((ila <= 5) && (grille[ila][colonneGagnante] == g) && (vg.size() <= 8) ){
+					vg.addLast(ila);
+					vg.addLast(colonneGagnante);			//ajout du voisin de la case gagnante i et j
+					ila = ila + 1;
+				}
+				if(vg.size() <= 8){
+					//on recule
+					int ilr = ligneGagnante - 1;
+					while((ilr >= 0) && (grille[ilr][colonneGagnante] == g) && (vg.size() <= 8)){
+						vg.addFirst(colonneGagnante);
+						vg.addFirst(ilr);		//ajout du voisin de la case gagnante i et j
+						ilr = ilr - 1;
+					}
+				}
+			}else{
+				if(directionGagnante.equals("d1")){		//gain selon la diagonale 1
+					//on avance d'abord
+					int ila = ligneGagnante + 1;
+					int jla = colonneGagnante + 1;
+					while((ila <= 5) && (jla <= 6) && (grille[ila][jla] == g) && (vg.size() <= 8)){
+						vg.addLast(ila);
+						vg.addLast(jla);	//ajout du voisin de la case gagnante i et j
+						ila = ila + 1;
+						jla = jla + 1;
+					}
+					if(vg.size() <= 8){
+						//on recule
+						int ilr = ligneGagnante - 1;
+						int jlr = colonneGagnante - 1;
+						while((ilr >= 0) && (jlr >= 0) && (grille[ilr][jlr] == g) && (vg.size() <= 8)){
+							vg.addFirst(jlr);
+							vg.addFirst(ilr);		//ajout du voisin de la case gagnante i et j
+							ilr = ilr - 1;
+							jlr = jlr - 1;
+						}
+					}
+				}else{
+					if(directionGagnante.equals("d1")){		//gain selon la diagonale 2
+						//on avance d'abord
+						int ila = ligneGagnante - 1;
+						int jla = colonneGagnante + 1;
+						while((ila >= 0) && (jla <= 6) && (grille[ila][jla] == g) && (vg.size() <= 8)){
+							vg.addLast(ila);
+							vg.addLast(jla);		//ajout du voisin de la case gagnante i et j
+							ila = ila - 1;
+							jla = jla + 1;
+						}
+						if(vg.size() <= 8){
+							//on recule
+							int ilr = ligneGagnante + 1;
+							int jlr = colonneGagnante - 1;
+							while((ilr <= 5) && (jlr >= 0) && (grille[ilr][jlr] == g) && (vg.size() <= 8)){
+								vg.addFirst(jlr);
+								vg.addFirst(ilr);		//ajout du voisin de la case gagnante i et j
+								ilr = ilr + 1;
+								jlr = jlr - 1;
+							}
+						}
+					}
+				}
+			}
+		}
+		return vg;
+	}
 
-    /**Methode qui permet de jouer contre l'ordinateur, niveau facile (l'ordi joue au hasard)
-     * @return la colonne a jouer*/
-    public int joueOrdiFacile(){
-        int j = -1;
-        boolean trouve = false;
-        while (!trouve) {
-            j = (int) (Math.random() * (nbc));
-            trouve = !colonnePleine(j);
-        }
-        return j;//entier au hasard entre 0 et nbc-1
-    }
-
-    /**Methode qui permet de jouer contre l'ordinateur, niveau moyen
-     * @return la colonne a jouer*/
-    public int joueOrdiMoyen(){
-        //A REVOIR!!!
-        evaluerOrdi(0);
-        return colonneOrdi;
-    }
-    /**Methode qui permet de jouer contre l'ordinateur, niveau difficile
-     * @return la colonne a jouer*/
-    public int joueOrdiDifficile(){
-        //A REFAIRE!!!
-        evaluerOrdi(0);
-        return colonneOrdi;
-    }
-
-    private int evaluerOrdi(int niveau){
-        if (niveau==profondeur)
-            return valeur();
-        Plateau p = this.copie();
-        int val = Integer.MIN_VALUE;
-        int valrec;
-        for (int j=0; j<nbc; j++){
-            try{
-                p.joue(j,joueur2);//l'ordinateur joue les coups possibles
-                if (p.gagne()==joueur2){//l'ordi a gagne, pas besoin d'evaluer les branches en dessous
-                    colonneOrdi = j;
-                    val = Integer.MAX_VALUE;
-                    p.effacerDernier();
-                    return val;
-                }
-            }catch (Exception e){continue;}//colonne pleine
-            valrec = p.evaluerAdv(niveau+1);
-            if (valrec>val){
-                val = valrec;
-                colonneOrdi = j;
-            }
-            p.effacerDernier();//on remet le plateau a la configuration initiale
-        }
-        return val;
-    }
-    private int evaluerAdv(int niveau){
-        if (niveau==profondeur)
-            return valeur();
-        Plateau p = this.copie();
-        int val = Integer.MAX_VALUE;
-        int valrec;
-        for (int j=0; j<nbc; j++){
-            try{
-                p.joue(j,joueur1);//l'adversaire joue les coups possibles
-                if (p.gagne()==joueur1){//l'adv a gagne, pas besoin d'evaluer les branches en dessous
-                    colonneOrdi = j;
-                    val = Integer.MIN_VALUE;
-                    p.effacerDernier();
-                    return val;
-                }
-            }catch (Exception e){continue;}//colonne pleine
-            valrec = p.evaluerOrdi(niveau+1);
-            if (valrec<val){
-                val = valrec;
-                colonneOrdi = j;
-            }
-            p.effacerDernier();//on remet le plateau a la configuration initiale
-        }
-        return val;
-    }
-
-    private void effacerDernier(){
-        grille[ligneCourante][colonneCourante]=0;
-        niveauCol[colonneCourante]--;
-    }
-    /*---METHODES PRIVEES---*/
-
-    //Methode qui fait passer la main au joueur suivant
-    private void joueurSuivant(){
-        joueurCourant = joueur1 + joueur2 - joueurCourant;
-    }
-
-    //Methode qui permet a l'odinateur de savoir si la configuration courante de la grille lui est favorable
-    private int valeur(){
-        //colonneOrdi = colonneCourante;
-        int g = gagne();
-        if (g==joueur2)//l'ordinateur a gagne
-            return Integer.MAX_VALUE;
-        if (g==-1)//personne n'a gagne
-            return 0;
-        return Integer.MIN_VALUE;//l'adversaire a gagne
-    }
-
-    /*Methode qui permet de jouer un pas d'un tour (d'ou le nom "pas a pas")
-  * C'est a dire de placer un pion dans une case et de l'effacer dans la case du dessus
-  * (utilisee plutot dans la version graphique pour simuler la chute du pion)
-  * @param i l'indice de ligne de la case : precondition i est valide
-  * @param j l'indice de colonne de la case : precondition j est valide et non pleine
-  * @return vrai ssi le pion peut toujours descendre dans la colonne j*/
-    private boolean jouePaP(int i, int j){
-
-        if (i<nbl && grille[i][j]==0){
-            grille[i][j] = joueurCourant;
-            if (i-1>=0)//on efface le precedent
-                grille[i-1][j] = 0;
-        }
-
-        colonneCourante = j;
-        ligneCourante = i;
-
-        if (i+1<nbl && grille[i+1][j]==0)//on peut toujours descendre
-            return true;
-
-        joueurSuivant();//sinon on ne peut plus descendre, il faut changer de joueur
-        return false;
-
-    }
-
-    //LIGNE
-    //renvoie le nombre de pion voisins de celui du joueur de la case i,j sur la ligne
-    private int avanceLigne(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int j1 = j + 1;
-            boolean rep = true;
-            while(nb<=4 && (j1 <= nbc-1) && (grille[i][j1] != 0)){
-                rep = rep && (grille[i][j1] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i,j1);
-                    j1++;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-
-    private int reculeLigne(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int j1 = j - 1;
-            boolean rep = true;
-            while(nb<=4 && (j1 >= 0) && (grille[i][j1] != 0)){
-                rep = rep && (grille[i][j1] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i,j1);
-                    j1--;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-    //COLONNE
-    //renvoie le nombre de pion du joueur de la case i,j pour le joueur courant sur la colonne
-    private int avanceColonne(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int i1 = i + 1;
-            boolean rep = true;
-            while(nb<=4 && (i1 <= nbl-1) && (grille[i1][j] != 0)){
-                rep = rep && (grille[i1][j] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i1,j);
-                    i1++;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-
-    private int reculeColonne(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int i1 = i - 1;
-            boolean rep = true;
-            while(nb<=4 && (i1 >= 0) && (grille[i1][j] != 0)){
-                rep = rep && (grille[i1][j] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i1,j);
-                    i1--;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-    //DIAGONALE
-    //renvoie le nombre de pion du joueur de la case i,j pour le joueur courant sur la diagonale
-    //1ERE DIAGONALE
-    private int avanceDiag1(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int i1 = i + 1;
-            int j1 = j + 1;
-            boolean rep = true;
-            while(nb<=4 && (i1 <= nbl-1) && (j1 <= nbc-1) && (grille[i1][j1] != 0)){
-                rep = rep && (grille[i1][j1] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i1,j1);
-                    i1++;
-                    j1++;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-
-    private int reculeDiag1(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int i1 = i - 1;
-            int j1 = j - 1;
-            boolean rep = true;
-            while(nb<=4 && (i1 >= 0) && (j1 >= 0) && (grille[i1][j1] != 0)){
-                rep = rep && (grille[i1][j1] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i1,j1);
-                    i1--;
-                    j1--;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-    //2EME DIAGONALE
-    private int avanceDiag2(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int i1 = i - 1;
-            int j1 = j + 1;
-            boolean rep = true;
-            while(nb<=4 && (i1 >= 0) && (j1 <= nbc-1) && (grille[i1][j1] != 0)){
-                rep = rep && (grille[i1][j1] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i1,j1);
-                    i1--;
-                    j1++;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-
-    private int reculeDiag2(int i, int j){
-        int nb = 0;
-        if(grille[i][j] != 0){
-            int i1 = i + 1;
-            int j1 = j - 1;
-            boolean rep = true;
-            while(nb<=4 && (i1 <= nbl-1) && (j1 >= 0) && (grille[i1][j1] != 0)){
-                rep = rep && (grille[i1][j1] == grille[i][j]);
-                if(rep){
-                    addVecteurGagnant(i1,j1);
-                    i1++;
-                    j1--;
-                    nb++;
-                }else{
-                    return nb;
-                }
-            }
-            return nb;
-        }else{
-            return nb;
-        }
-    }
-
-    //methode pour effacer le vecteur gagnant
-    private void effacerVecteurGagnant(){
-        indiceVecteurGagant = -1;
-    }
-
-    //Methode pour ajouter la case i,j a la liste des vecteurs qui ont permis de gagner
-    private void addVecteurGagnant(int i, int j){
-        if (indiceVecteurGagant<3){
-            indiceVecteurGagant++;
-            vecteurGagnant[0][indiceVecteurGagant]=i;
-            vecteurGagnant[1][indiceVecteurGagant]=j;
-        }
-    }
-
-    //Methode qui renvoie vrai ssi la case i,j est dans le vecteur gagnant
-    private boolean dansVecteurGagnant(int i, int j){
-        boolean trouve = false;
-        if (indiceVecteurGagant==3){//si on a gagne
-            int k = 0;
-            while (k<4 && !trouve) {
-                trouve = (vecteurGagnant[0][k] == i && vecteurGagnant[1][k] == j);
-                k++;
-            }
-        }
-        return trouve;
-    }
-
+	/** Methode qui affiche le vecteur gagnant 
+	*/
+	public void afficheVecteurGagnant(){
+		String s = "";
+		LinkedList<Integer> v = vecteurGagnant();
+		int i = 0;
+		while(i < v.size()){
+			s = s + "(" + v.get(i) + ", " + v.get(i+1) + ") ";
+			i = i + 2;
+		}
+		System.out.println("Le vecteur gagnant est : " + s);
+	}
+	
 }
