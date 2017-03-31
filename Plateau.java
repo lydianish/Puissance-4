@@ -10,7 +10,8 @@ public class Plateau
     private  final String couleur2 = "ROUGE" ;
     public static final int attenteMin = 10;
     public static final int attenteMax = 100;
-    public static final int profondeurMax = 7;
+    public static final int profondeurMoy = 4;
+    public static final int profondeurMax = 8;
 
     //Joueur
     private int joueurCourant;
@@ -26,7 +27,7 @@ public class Plateau
     //Affichage
     private int attente = attenteMin; //nombre de millisecondes entre chaque etape de la chute du pion
     //Intelligence artificielle
-    private int profondeur = 2;
+    private int profondeur = 3;
     private int colonneOrdi = -1;
 
     //CONSTRUCTEUR
@@ -202,6 +203,7 @@ public class Plateau
 		return res;
 	}
 
+
 	/**Methode qui permet a un joueur de jouer un pion
      * @param j la colonne a jouer
      * @param joueur le numero du joueur
@@ -235,51 +237,6 @@ public class Plateau
         }
         niveauCol[j]++;
     }
-	
-		/** permet de faire jouer le joueur courant dans le plateau à la colonne i
-     	* @param j la colonne a jouer
-     	* @param affichage le Thread qui gere l'affichage (pour pouvoir lui mettre un sleep)
-      */
-	public int joue(int i) throws ColonnePleineException{
-		if(!estColPleine(i)){
-			setNiveauCol(i, getNiveauCol(i)+1);
-			grille[5 - (getNiveauCol(i)-1)][i] = joueurCourant;
-			ligneCourante = 6 - getNiveauCol(i);
-			colonneCourante = i;
-			joueurSuivant();
-		}else{
-			throw new ColonnePleineException("La colonne : " + i + " est déjà pleine");
-		}
-		return getNiveauCol(i);
-	}
-  
-    /**Methode qui permet de jouer contre l'ordinateur, niveau facile (l'ordi joue au hasard)
-     * @return la colonne a jouer*/
-    public int joueOrdiFacile(){
-        evaluerOrdi(1);
-        return colonneOrdi;
-    }
-
-    /**Methode qui permet de jouer contre l'ordinateur, niveau moyen
-     * @return la colonne a jouer*/
-    public int joueOrdiMoyen(){
-        evaluerOrdi(3);
-        return colonneOrdi;
-    }
-    /**Methode qui permet de jouer contre l'ordinateur, niveau difficile
-     * @return la colonne a jouer*/
-    public int joueOrdiDifficile(){
-        evaluerOrdi(6);
-        return colonneOrdi;
-    }
-    
-    /**Methode qui permet de jouer contre l'ordinateur, niveau expert
-     * @return la colonne a jouer*/
-    public int joueOrdiDifficile(){
-        alphabetaOrdi(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
-        return colonneOrdi;
-    }
-
 
     /**Methode qui permet de jouer contre l'ordinateur, niveau facile (l'ordi joue au hasard)
      * @return la colonne a jouer*/
@@ -296,19 +253,17 @@ public class Plateau
     /**Methode qui permet de jouer contre l'ordinateur, niveau moyen
      * @return la colonne a jouer*/
     public int joueOrdiMoyen(){
-        //A REVOIR!!!
-        evaluerOrdi(0);
+        minmaxOrdi(0);
         return colonneOrdi;
     }
     /**Methode qui permet de jouer contre l'ordinateur, niveau difficile
      * @return la colonne a jouer*/
     public int joueOrdiDifficile(){
-        //A REFAIRE!!!
-        evaluerOrdi(0);
+        alphabetaOrdi(0,Integer.MIN_VALUE,Integer.MAX_VALUE);
         return colonneOrdi;
     }
 
-    private int evaluerOrdi(int niveau){
+    private int minmaxOrdi(int niveau){
         if (niveau==profondeur)
             return valeur();
         Plateau p = this.copie();
@@ -317,17 +272,23 @@ public class Plateau
         for (int j=0; j<nbc; j++){
             try{
                 p.joue(j,joueur2);//l'ordinateur joue les coups possibles
+                if (p.gagne()==joueur2){//l'ordi a gagne, pas besoin d'evaluer les branches en dessous
+                    colonneOrdi = j;
+                    val = Integer.MAX_VALUE;
+                    p.effacerDernier();
+                    return val;
+                }
             }catch (Exception e){continue;}//colonne pleine
-            valrec = p.evaluerAdv(niveau+1);
+            valrec = p.minmaxAdv(niveau+1);
             if (valrec>val){
                 val = valrec;
                 colonneOrdi = j;
             }
-            p.effacerDernier();
+            p.effacerDernier();//on remet le plateau a la configuration initiale
         }
         return val;
     }
-    private int evaluerAdv(int niveau){
+    private int minmaxAdv(int niveau){
         if (niveau==profondeur)
             return valeur();
         Plateau p = this.copie();
@@ -336,84 +297,98 @@ public class Plateau
         for (int j=0; j<nbc; j++){
             try{
                 p.joue(j,joueur1);//l'adversaire joue les coups possibles
+                if (p.gagne()==joueur1){//l'adv a gagne, pas besoin d'evaluer les branches en dessous
+                    colonneOrdi = j;
+                    val = Integer.MIN_VALUE;
+                    p.effacerDernier();
+                    return val;
+                }
             }catch (Exception e){continue;}//colonne pleine
-            valrec = p.evaluerOrdi(niveau+1);
+            valrec = p.minmaxOrdi(niveau+1);
             if (valrec<val){
                 val = valrec;
                 colonneOrdi = j;
             }
-            p.effacerDernier();
+            p.effacerDernier();//on remet le plateau a la configuration initiale
         }
         return val;
     }
-	
-	/** permet de faire une simulation de jeu a partir de la configuration courante pour l'ordinateur
-     	* @param niveau : profondeur de l'arbre engendre par l'algorithme alpha beta 
-      * @param alpha : borne inferieure de l'intervalle de confiance [alpha,beta]
-      * @param beta : borne superieure de l'intervalle de confiance [alpha,beta]
-     	* @return la valeur gagnee par l'ordinateur pour la configuration courante
-      */
-	private int alphabetaOrdi(int niveau, int alpha, int beta){
-		if(niveau == profondeur){
-			return valeur();
-		}else{
-			Plateau cop = this.copie();
-			int eval = Integer.MIN_VALUE;
-			int valsuiv;
-			for(int j = 0; j <= 6; j++){
-				try{
-					cop.joue(j, joueur2);
-				}catch(Exception e){
-					continue;
-				}
-				valsuiv = alphabetaAdv(niveau + 1, alpha, beta);
-				if(valsuiv > eval){
-					eval = valsuiv;
-					colonneOrdi = j;
-					if(alpha < eval){
-						alpha = eval;
-						j = 6;		//coupure
-					}
-				}
-				cop.effaceDernier();
-			}
-			return eval;
-		}	
-	}
-	/** permet de faire une simulation de jeu a partir de la configuration courante pour l'adversaire
-     	* @param niveau : profondeur de l'arbre engendré par l'algorithme alpha beta
-      * @param alpha : borne inferieure de l'intervalle de confiance [alpha,beta]
-      * @param beta : borne superieure de l'intervalle de confiance [alpha,beta]
-     	* @return la valeur gagnee par l'adversaire pour la configuration courante
-      */
-	private int alphabetaAdv(int niveau, int alpha, int beta){
-		if(niveau == profondeur){
-			return valeur();
-		}else{
-			Plateau cop = this.copie();
-			int eval = Integer.MAX_VALUE;
-			int valsuiv;
-			for(int j = 0; j <= 6; j++){
-				try{
-					cop.joue(j, joueur2);
-				}catch(Exception e){
-					continue;
-				}
-				valsuiv = alphabetaOrd(niveau + 1, alpha, beta);
-				if(valsuiv < eval){
-					eval = valsuiv;
-					colonneOrdi = j;
-					if(beta > eval){
-						beta = eval;
-						j = 6;		//coupure
-					}
-				}
-				cop.effaceDernier();
-			}
-			return eval;
-		}	
-	}
-	
+
+    /* permet de faire une simulation de jeu a partir de la configuration courante pour l'ordinateur
+     * @param niveau : profondeur de l'arbre engendre par l'algorithme alpha beta
+     * @param alpha : borne inferieure de l'intervalle de confiance [alpha,beta]
+     * @param beta : borne superieure de l'intervalle de confiance [alpha,beta]
+     * @return la valeur gagnee par l'ordinateur pour la configuration courante
+     */
+    private int alphabetaOrdi(int niveau, int a, int b){
+        if(niveau == profondeur)
+            return valeur();
+
+        Plateau cop = this.copie();
+        int alpha = a, beta = b;
+        int valsuiv;
+        for(int j = 0; j < nbc; j++){
+            try{
+                cop.joue(j, joueur2);
+                if (cop.gagne()==joueur2){//l'ordi a gagne, pas besoin d'evaluer les branches en dessous
+                    colonneOrdi = j;
+                    cop.effacerDernier();
+                    return Integer.MAX_VALUE;
+                }
+            }catch(Exception e){//colonne pleine
+                continue;
+            }
+            valsuiv = cop.alphabetaAdv(niveau + 1, alpha, beta);
+            //alpha = Math.max(alpha,valsuiv);
+            if (valsuiv > alpha){
+                alpha = valsuiv;
+                colonneOrdi = j;
+            }
+            cop.effacerDernier();
+            if (alpha>=beta)
+                return beta;
+        }
+        return alpha;
+        //return eval;
+
+    }
+    /* permet de faire une simulation de jeu a partir de la configuration courante pour l'adversaire
+     * @param niveau : profondeur de l'arbre engendré par l'algorithme alpha beta
+     * @param alpha : borne inferieure de l'intervalle de confiance [alpha,beta]
+     * @param beta : borne superieure de l'intervalle de confiance [alpha,beta]
+     * @return la valeur gagnee par l'adversaire pour la configuration courante
+     */
+    private int alphabetaAdv(int niveau, int a, int b){
+        if(niveau == profondeur)
+            return valeur();
+        Plateau cop = this.copie();
+        int alpha = a, beta = b;
+        int valsuiv;
+        for(int j = 0; j < nbc; j++){
+            try{
+                cop.joue(j, joueur1);
+                if (cop.gagne()==joueur1){//l'adv a gagne, pas besoin d'evaluer les branches en dessous
+                    colonneOrdi = j;
+                    cop.effacerDernier();
+                    return Integer.MIN_VALUE;
+                }
+            }catch(Exception e){
+                continue;
+            }
+            valsuiv = cop.alphabetaOrdi(niveau + 1, alpha, beta);
+
+            //beta = Math.min(beta,valsuiv);
+            if (valsuiv < beta){
+                beta = valsuiv;
+                colonneOrdi = j;
+            }
+            cop.effacerDernier();
+            if (alpha>=beta)
+                return alpha;
+        }
+        return beta;
+    }
+
     private void effacerDernier(){
         grille[ligneCourante][colonneCourante]=0;
         niveauCol[colonneCourante]--;
@@ -427,7 +402,6 @@ public class Plateau
 
     //Methode qui permet a l'odinateur de savoir si la configuration courante de la grille lui est favorable
     private int valeur(){
-        colonneOrdi = colonneCourante;
         int g = gagne();
         if (g==joueur2)//l'ordinateur a gagne
             return Integer.MAX_VALUE;
@@ -483,6 +457,7 @@ public class Plateau
             return nb;
         }
     }
+
 
 
     private int reculeLigne(int i, int j){
@@ -676,85 +651,4 @@ public class Plateau
         return trouve;
     }
 
-}
-
-       /** permet de faire jouer le joueur courant dans le plateau à la colonne i
-     	* @param j la colonne a jouer
-     	* @param affichage le Thread qui gere l'affichage (pour pouvoir lui mettre un sleep)
-      */
-	public int joue(int i) throws ColonnePleineException{
-		if(!estColPleine(i)){
-			setNiveauCol(i, getNiveauCol(i)+1);
-			grille[5 - (getNiveauCol(i)-1)][i] = joueurCourant;
-			ligneCourante = 6 - getNiveauCol(i);
-			colonneCourante = i;
-			joueurSuivant();
-		}else{
-			throw new ColonnePleineException("La colonne : " + i + " est déjà pleine");
-		}
-		return getNiveauCol(i);
-	}
-  
-    /**Methode qui permet de jouer contre l'ordinateur, niveau facile (l'ordi joue au hasard)
-     * @return la colonne a jouer*/
-    public int joueOrdiFacile(){
-        evaluerOrdi(1);
-        return colonneOrdi;
-    }
-
-    /**Methode qui permet de jouer contre l'ordinateur, niveau moyen
-     * @return la colonne a jouer*/
-    public int joueOrdiMoyen(){
-        evaluerOrdi(3);
-        return colonneOrdi;
-    }
-    /**Methode qui permet de jouer contre l'ordinateur, niveau difficile
-     * @return la colonne a jouer*/
-    public int joueOrdiDifficile(){
-        evaluerOrdi(6);
-        return colonneOrdi;
-    }
-    
-    /**Methode qui permet de jouer contre l'ordinateur, niveau expert
-     * @return la colonne a jouer*/
-    public int joueOrdiDifficile(){
-        alphabetaOrdi(0, Integer.MIN_VALUE, Integer.MAX_VALUE)
-        return colonneOrdi;
-    }
-  
-  
-  	/** permet de faire une simulation de jeu a partir de la configuration courante pour l'ordinateur
-     	* @param niveau : profondeur de l'arbre engendre par l'algorithme alpha beta 
-      * @param alpha : borne inferieure de l'intervalle de confiance [alpha,beta]
-      * @param beta : borne superieure de l'intervalle de confiance [alpha,beta]
-     	* @return la valeur gagnee par l'ordinateur pour la configuration courante
-      */
-	private int alphabetaOrdi(int niveau, int alpha, int beta){
-		if(niveau == profondeur){
-			return valeur();
-		}else{
-			Plateau cop = this.copie();
-			int eval = Integer.MIN_VALUE;
-			int valsuiv;
-			for(int j = 0; j <= 6; j++){
-				try{
-					cop.joue(j, joueur2);
-				}catch(Exception e){
-					continue;
-				}
-				valsuiv = alphabetaAdv(niveau + 1, alpha, beta);
-				if(valsuiv > eval){
-					eval = valsuiv;
-					colonneOrdi = j;
-					if(alpha < eval){
-						alpha = eval;
-						j = 6;		//coupure
-					}
-				}
-				cop.effaceDernier();
-			}
-			return eval;
-		}	
-	}
-	
 }

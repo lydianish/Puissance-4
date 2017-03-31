@@ -86,6 +86,14 @@ public class Fenetre extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 middle.setMode(((JComboBox)e.getSource()).getSelectedIndex());
+                switch (((JComboBox)e.getSource()).getSelectedIndex()) {
+                    case 0 : profondeur.setEnabled(false); break;
+                    case 1 : profondeur.setEnabled(false); break;
+                    case 2 : profondeur.setModel(new SpinnerNumberModel(1,1,Plateau.profondeurMoy,1));
+                        profondeur.setEnabled(true); break;
+                    case 3 : profondeur.setModel(new SpinnerNumberModel(Plateau.profondeurMoy+1,Plateau.profondeurMoy+1,Plateau.profondeurMax,1));
+                        profondeur.setEnabled(true); break;
+                }
             }
         });
 
@@ -140,6 +148,14 @@ public class Fenetre extends JFrame {
 
     private JSpinner mySpinner(){
         JSpinner s = new JSpinner(new SpinnerNumberModel(1,1,Plateau.profondeurMax,1));
+        JLabel l = new JLabel("Profondeur :");
+        l.setLabelFor(s);bottom.add(l);
+        s.setEnabled(false);
+        return s;
+    }
+
+    private JSpinner mySpinnerDifficile(){
+        JSpinner s = new JSpinner();
         JLabel l = new JLabel("Profondeur :");
         l.setLabelFor(s);bottom.add(l);
         return s;
