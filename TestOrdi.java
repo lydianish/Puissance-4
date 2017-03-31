@@ -51,11 +51,9 @@ public class TestOrdi{
 					if(p.getJoueurCourant() == 2){
 						/* Partie Ordinateur */
 						System.out.println("c'est à l'ordi de jouer ");
-						int v = 0;
-						v = (int)( 10 * Math.random());			//renvoie un entier entre 0 et 1
-						while((v<0) || (v>6)){
-							v = (int)( 10 * Math.random());
-						}
+						int v = p.joueOrdiFacile();
+						//int v = p.joueOrdiMoyen();
+						//int v = p.joueOrdiDifficile();
 						try{
 							p.joue(v);
 						}catch(ColonnePleineException e){
