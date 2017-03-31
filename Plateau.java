@@ -111,8 +111,6 @@ public class Plateau
         Plateau p = new Plateau();
         p.joueurCourant = this.joueurCourant;
         p.joueurGagnant = this. joueurGagnant;
-        p.nbc = this.nbc;
-        p.nbl = this.nbl;
         p.grille = this.grille.clone();
         p.niveauCol = this.niveauCol.clone();
         p.ligneCourante = this.ligneCourante;
@@ -255,13 +253,13 @@ public class Plateau
         return j;//entier au hasard entre 0 et nbc-1
     }
 
-    /**Methode qui permet de jouer contre l'ordinateur, niveau moyen
+    /**Methode qui permet de jouer contre l'ordinateur, niveau moyen (algo minmax)
      * @return la colonne a jouer*/
     public int joueOrdiMoyen(){
         minmaxOrdi(0);
         return colonneOrdi;
     }
-    /**Methode qui permet de jouer contre l'ordinateur, niveau difficile
+    /**Methode qui permet de jouer contre l'ordinateur, niveau difficile (algo alpha beta)
      * @return la colonne a jouer*/
     public int joueOrdiDifficile(){
         alphabetaOrdi(0,Integer.MIN_VALUE,Integer.MAX_VALUE);
@@ -445,7 +443,6 @@ public class Plateau
 
         if (i+1<nbl && grille[i+1][j]==0)//on peut toujours descendre
             return true;
-
         joueurSuivant();//sinon on ne peut plus descendre, il faut changer de joueur
         return false;
 

@@ -91,8 +91,8 @@ public class Panneau extends JPanel implements MouseListener{
                 if (jeu.colonnePleine(j))
                     setMessage("La colonne "+j+" est deja pleine !");
                 else{
-                    if (mode==0 || jeu.getJoueurCourant()==Plateau.joueur1)
-                    col = j;
+                    if (mode==0 || jeu.getJoueurCourant()==Plateau.joueur1)//c'est a l'utilisateur de jouer
+                        col = j;
                 }
             }
         }
