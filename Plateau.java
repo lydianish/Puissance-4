@@ -490,7 +490,6 @@ public class Plateau{
 			grille[5 - (getNiveauCol(i)-1)][i] = joueurCourant;
 			ligneCourante = 6 - getNiveauCol(i);
 			colonneCourante = i;
-			//System.out.println("ligne et colonne courantes (" + ligneCourante + " " + colonneCourante + ")");
 			joueurSuivant();
 		}else{
 			throw new ColonnePleineException("La colonne : " + i + " est déjà pleine");
@@ -509,28 +508,24 @@ public class Plateau{
 		int k = colonneCourante;
 		int g = grille[i][k];
 		if((1 + avanceLigne(i,k) + reculeLigne(i,k)) >= 4){
-			//System.out.println("nb joueur courant ligne : " + (1 + avanceLigne(i,k) + reculeLigne(i,k)));
 			ligneGagnante = i;
 			colonneGagnante = k;
 			directionGagnante = "l";
 			return g;
 		}else{
 			if((1 + avanceColonne(i,k) + reculeColonne(i,k)) >= 4){
-				//System.out.println("nb joueur courant colonne : " + (1 + avanceColonne(i,k) + reculeColonne(i,k)));
 				ligneGagnante = i;
 				colonneGagnante = k;
 				directionGagnante = "c";
 				return g;
 			}else{
 				if((1 + avanceDiag1(i,k) + reculeDiag1(i,k)) >= 4){
-					//System.out.println("nb joueur courant diagonale1 : " + (1 + avanceDiag1(i,k) + reculeDiag1(i,k)));
 					ligneGagnante = i;
 					colonneGagnante = k;
 					directionGagnante = "d1";
 					return g;
 				}else{
 					if((1 + avanceDiag2(i,k) + reculeDiag2(i,k)) >= 4){
-						//System.out.println("nb joueur courant diagonale2 : " + (1 + avanceDiag2(i,k) + reculeDiag2(i,k)));
 						ligneGagnante = i;
 						colonneGagnante = k;
 						directionGagnante = "d2";
