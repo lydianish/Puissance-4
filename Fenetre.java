@@ -116,7 +116,7 @@ public class Fenetre extends JFrame {
     private int pixels = 90;
 	private int largeurP = 7*pixels;// or Math.min(jeu.getLargeur()*pixels,Toolkit.getDefaultToolkit().getScreenSize().width);;
     private int hauteurP = 6*pixels;
-	private int hauteurM = 50;
+	private int hauteurM = 70;
 
     private JButton newgame;
     private JButton quit;
