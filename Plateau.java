@@ -1,5 +1,7 @@
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.util.*;
+import java.util.List;
 
 public class Plateau
 {
@@ -17,8 +19,10 @@ public class Plateau
     private int joueurCourant;
     private int joueurGagnant;
     //Grille
-    private int nbl = 6;
-    private int nbc = 7;
+    private static int nbl = 6;
+    private static int nbc = 7;
+    private static List<Integer> indicesColonnes ;//liste pour stocker les indices de colonnes, permettra de parcourir les colonnes dans un ordre aléatoire
+
     private int[][] grille;			//grille du jeu
 	private int[] niveauCol;		//tableau du nb de pions dans chaque colonne
 	private int ligneCourante, colonneCourante;	//indice de la ligne et de la colonne courante
@@ -36,6 +40,7 @@ public class Plateau
 		grille = new int[nbl][nbc];
 		niveauCol = new int[nbc];
         vecteurGagnant = new int[2][4];
+        initIndicesColonnes();
 	}
 
 	//ACCESSEURS
@@ -269,7 +274,8 @@ public class Plateau
         Plateau p = this.copie();
         int val = Integer.MIN_VALUE;
         int valrec;
-        for (int j=0; j<nbc; j++){
+        Collections.shuffle(indicesColonnes);
+        for (int j : indicesColonnes){
             try{
                 p.joue(j,joueur2);//l'ordinateur joue les coups possibles
                 if (p.gagne()==joueur2){//l'ordi a gagne, pas besoin d'evaluer les branches en dessous
@@ -294,7 +300,8 @@ public class Plateau
         Plateau p = this.copie();
         int val = Integer.MAX_VALUE;
         int valrec;
-        for (int j=0; j<nbc; j++){
+        Collections.shuffle(indicesColonnes);
+        for (int j : indicesColonnes){
             try{
                 p.joue(j,joueur1);//l'adversaire joue les coups possibles
                 if (p.gagne()==joueur1){//l'adv a gagne, pas besoin d'evaluer les branches en dessous
@@ -308,7 +315,7 @@ public class Plateau
             if (valrec<val){
                 val = valrec;
                 colonneOrdi = j;
-            }
+             }
             p.effacerDernier();//on remet le plateau a la configuration initiale
         }
         return val;
@@ -327,7 +334,8 @@ public class Plateau
         Plateau cop = this.copie();
         int alpha = a, beta = b;
         int valsuiv;
-        for(int j = 0; j < nbc; j++){
+        Collections.shuffle(indicesColonnes);
+        for (int j : indicesColonnes){
             try{
                 cop.joue(j, joueur2);
                 if (cop.gagne()==joueur2){//l'ordi a gagne, pas besoin d'evaluer les branches en dessous
@@ -339,7 +347,7 @@ public class Plateau
                 continue;
             }
             valsuiv = cop.alphabetaAdv(niveau + 1, alpha, beta);
-            //alpha = Math.max(alpha,valsuiv);
+            //alpha = max(alpha,valsuiv);
             if (valsuiv > alpha){
                 alpha = valsuiv;
                 colonneOrdi = j;
@@ -364,7 +372,8 @@ public class Plateau
         Plateau cop = this.copie();
         int alpha = a, beta = b;
         int valsuiv;
-        for(int j = 0; j < nbc; j++){
+        Collections.shuffle(indicesColonnes);
+        for (int j : indicesColonnes){
             try{
                 cop.joue(j, joueur1);
                 if (cop.gagne()==joueur1){//l'adv a gagne, pas besoin d'evaluer les branches en dessous
@@ -376,8 +385,7 @@ public class Plateau
                 continue;
             }
             valsuiv = cop.alphabetaOrdi(niveau + 1, alpha, beta);
-
-            //beta = Math.min(beta,valsuiv);
+            //beta = min(beta,valsuiv);
             if (valsuiv < beta){
                 beta = valsuiv;
                 colonneOrdi = j;
@@ -389,10 +397,6 @@ public class Plateau
         return beta;
     }
 
-    private void effacerDernier(){
-        grille[ligneCourante][colonneCourante]=0;
-        niveauCol[colonneCourante]--;
-    }
     /*---METHODES PRIVEES---*/
 
     //Methode qui fait passer la main au joueur suivant
@@ -410,6 +414,18 @@ public class Plateau
         return Integer.MIN_VALUE;//l'adversaire a gagne
     }
 
+    //Methode qui initialise la liste des numeros de colonnes (0 a nbc-1)
+    private static void initIndicesColonnes(){
+        indicesColonnes = new ArrayList<Integer>();
+        for (int j = 0;j<nbc;j++)
+            indicesColonnes.add(j);
+    }
+
+    //Methode pour effacer le dernier pion joue dans le plateau
+    private void effacerDernier() {
+        grille[ligneCourante][colonneCourante] = 0;
+        niveauCol[colonneCourante]--;
+    }
     /*Methode qui permet de jouer un pas d'un tour (d'ou le nom "pas a pas")
   * C'est a dire de placer un pion dans une case et de l'effacer dans la case du dessus
   * (utilisee plutot dans la version graphique pour simuler la chute du pion)
