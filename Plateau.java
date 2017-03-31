@@ -2,23 +2,23 @@ import java.util.*;
 
 public class Plateau{
 
-	private int joueur1;			//joueur 1
-	private int joueur2;			//joueur 2
-	private int joueurCourant;		//joueurCourant
-	private int[][] grille;			//grille du jeu
-	private int[] niveauCol;		//tableau des niveaux pour chaque colonne
-	private boolean pret = false;		//booleen permettant la transition entre les deux methodes synchronisées avance et imprime
+	private int joueur1;					//joueur 1
+	private int joueur2;					//joueur 2
+	private int joueurCourant;				//joueurCourant
+	private int[][] grille;					//grille du jeu
+	private int[] niveauCol;				//tableau des niveaux pour chaque colonne
+	private boolean pret = false;				//booleen permettant la transition entre les deux methodes synchronisées avance et imprime
 	private int ligneCourante = 0, colonneCourante = 0;	//indice de la ligne et de la colonne courante
 	private int ligneGagnante = 0, colonneGagnante = 0;	//indice de la ligne et de la colonne gagnant
 	private String directionGagnante = "";			//direction dans laquelle le joueur a gagne si c'est le cas, l, c, d1 ou d2		
 
 	//CONSTRUCTEUR
 	public Plateau(){
-		joueur1  = 1;			//joueur 1
-		joueur2  = 2;			//joueur 2
-		joueurCourant  = joueur1;	//joueurCourant
-		grille = new int[6][7];		//grille du jeu
-		niveauCol = new int[7];		//tableau des niveaux pour chaque colonne
+		joueur1  = 1;					//joueur 1
+		joueur2  = 2;					//joueur 2
+		joueurCourant  = joueur1;			//joueurCourant
+		grille = new int[6][7];				//grille du jeu
+		niveauCol = new int[7];				//tableau des niveaux pour chaque colonne
 	}
 
 	//ACCESSEURS & MODIFICATEURS & METHODES
@@ -263,7 +263,6 @@ public class Plateau{
 		}
 	}
 
-
 	public int reculeLigne(int i, int j){
 		int nb = 0;
 		if(grille[i][j] != 0){
@@ -309,7 +308,6 @@ public class Plateau{
 			return nb;
 		}
 	}
-
 
 	public int reculeColonne(int i, int j){
 		int nb = 0;
@@ -501,7 +499,7 @@ public class Plateau{
 	}
 
 
-	/** Methode qui rend 1 si le joueur courant a gagne, -1 sinon
+	/** Methode qui renvoie 1 si le joueur courant a gagne, -1 sinon
 	* regarde si le dernier pion inserer a fait gagne le joueur courant
 	* @return i si le joueur courant a gagné, -1  sinon 
 	*/
