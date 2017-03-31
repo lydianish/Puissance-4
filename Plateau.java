@@ -26,7 +26,7 @@ public class Plateau
     //Affichage
     private int attente = attenteMin; //nombre de millisecondes entre chaque etape de la chute du pion
     //Intelligence artificielle
-    private int profondeur = 2;
+    private int profondeur = 3;
     private int colonneOrdi = -1;
 
     //CONSTRUCTEUR
@@ -273,13 +273,19 @@ public class Plateau
         for (int j=0; j<nbc; j++){
             try{
                 p.joue(j,joueur2);//l'ordinateur joue les coups possibles
+                if (p.gagne()==joueur2){//l'ordi a gagne, pas besoin d'evaluer les branches en dessous
+                    colonneOrdi = j;
+                    val = Integer.MAX_VALUE;
+                    p.effacerDernier();
+                    return val;
+                }
             }catch (Exception e){continue;}//colonne pleine
             valrec = p.evaluerAdv(niveau+1);
             if (valrec>val){
                 val = valrec;
                 colonneOrdi = j;
             }
-            p.effacerDernier();
+            p.effacerDernier();//on remet le plateau a la configuration initiale
         }
         return val;
     }
@@ -292,13 +298,19 @@ public class Plateau
         for (int j=0; j<nbc; j++){
             try{
                 p.joue(j,joueur1);//l'adversaire joue les coups possibles
+                if (p.gagne()==joueur1){//l'adv a gagne, pas besoin d'evaluer les branches en dessous
+                    colonneOrdi = j;
+                    val = Integer.MIN_VALUE;
+                    p.effacerDernier();
+                    return val;
+                }
             }catch (Exception e){continue;}//colonne pleine
             valrec = p.evaluerOrdi(niveau+1);
             if (valrec<val){
                 val = valrec;
                 colonneOrdi = j;
             }
-            p.effacerDernier();
+            p.effacerDernier();//on remet le plateau a la configuration initiale
         }
         return val;
     }
@@ -316,7 +328,7 @@ public class Plateau
 
     //Methode qui permet a l'odinateur de savoir si la configuration courante de la grille lui est favorable
     private int valeur(){
-        colonneOrdi = colonneCourante;
+        //colonneOrdi = colonneCourante;
         int g = gagne();
         if (g==joueur2)//l'ordinateur a gagne
             return Integer.MAX_VALUE;
